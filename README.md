@@ -2,6 +2,6 @@
 
 Program code for Lipscomb University JV IEEE SoutheastCon Robotics 2022 Team. (Or LUJVIEEESER2022 for short.)
 
-Microcontroller: Arduino Mega 2560
+Microcontroller: Adafruit Grand Central M4
 
 Programming Environment: PlatformIO inside of VSCode
