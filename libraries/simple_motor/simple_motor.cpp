@@ -2,11 +2,31 @@
  * Lipscomb IEEE Robotics 2022
  * Motor Control Library
  * Written by Ben Powell
- * Using Adafruit Motor Shield to control 4 DC motors and one servo.
+ * Using Adafruit Motor Shield to control 4 DC motors.
  * Two motors are aligned with the 'X' axis, and two with the 'Y' axis.
  *************************************************************************/
 
 //  THIS IS UNFINISHED, DO NOT USE!!!
+
+ /* Shape of field. "Up" is y+. "Down" is y-. "Left" is x-. "Right" is x+.
+ Robot starts at A.
+ 
+    ------------------------------------------------------
+	|         ^                                          |
+	|         y+                                         |
+	|    < x-   x+ >                                     |
+	|         y-	                                     |
+	|         v                                          |
+	|                -------------------------------------
+	|                |
+	|                |
+	|                |
+	|       A        |
+	|                |
+	|                |
+	------------------
+	
+*/
 
 #include "simple_motor.h"
 
@@ -25,28 +45,31 @@ void initializeMotors() {
 	}
 	Serial.println("Motor Shield found.");
 }
-// Drive up (y+) the specified number of centimeters
-void driveUp(int cm) {
-	
+// TODO: Test motor directions (forward, backward)
+
+// Drive up (y+) 
+void driveUp() {
+	M1->run(FORWARD);
+	M3->run(FORWARD);
 }
-// Drive down (y-) the specified number of centimeters
-void driveDown(int cm) {
-	
+// Drive down (y-) 
+void driveDown() {
+	M1->run(BACKWARD);
+	M3->run(BACKWARD);
 }
-// Drive left (x-) the specified number of centimeters
-void driveLeft(int cm) {
-	
+// Drive left (x-)
+void driveLeft() {
+	M2->run(BACKWARD);
+	M4->run(BACKWARD);
 }
-// Drive right (x+) the specified number of centimeters
-void driveRight(int cm) {
-	
+// Drive right (x+)
+void driveRight() {
+	M2->run(FORWARD);
+	M4->run(FORWARD);
 }
-// Set speed of specified motor. 0 is servo, 1 is M1, 2 is M2, 3 is M3, 4 is M4.
+// Set speed of specified motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4. Speed is 0-255.
 void setSpeed(int motorNum, int speed) {
 	switch(motorNum) {
-		case 0:
-			
-			break;
 		case 1:
 			M1->setSpeed(speed);
 			break;
@@ -59,14 +82,13 @@ void setSpeed(int motorNum, int speed) {
 		case 4:
 			M4->setSpeed(speed);
 			break;
+		default:
+			break;
 	}
 }
-// Stop specific motor. 0 is servo, 1 is M1, 2 is M2, 3 is M3, 4 is M4. 
+// Stop specific motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4. 
 void stopMotor(int motorNum) {
 	switch(motorNum) {
-		case 0:
-			
-			break;
 		case 1:
 			M1->run(RELEASE);
 			break;
@@ -78,6 +100,8 @@ void stopMotor(int motorNum) {
 			break;
 		case 4:
 			M4->run(RELEASE);
+			break;
+		default:
 			break;
 	}
 }
