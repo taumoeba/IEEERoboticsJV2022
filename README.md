@@ -4,4 +4,4 @@ Program code for Lipscomb University JV IEEE SoutheastCon Robotics 2022 Team. (O
 
 Microcontroller: Adafruit Grand Central M4
 
-Programming Environment: Arduino IDE 2.0
+Programming Environment: Arduino IDE
