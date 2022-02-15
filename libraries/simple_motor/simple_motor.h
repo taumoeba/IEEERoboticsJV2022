@@ -26,8 +26,8 @@
 	
 */
 
-#ifndef SIMPLE_MOTOR_HPP
-#define SIMPLE_MOTOR_HPP
+#ifndef SIMPLE_MOTOR_H
+#define SIMPLE_MOTOR_H
 
 #include <Arduino.h>
 #include <Adafruit_Motorshield.h>

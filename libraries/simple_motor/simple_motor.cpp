@@ -3,7 +3,7 @@
  * Motor Control Library
  * Written by Ben Powell
  * Using Adafruit Motor Shield to control 4 DC motors.
- * Two motors are aligned with the 'X' axis, and two with the 'Y' axis.
+ * M2 and M4 are aligned with the 'X' axis, and M1 and M3 with the 'Y' axis.
  *************************************************************************/
 
 //  THIS IS UNFINISHED, DO NOT USE!!!
