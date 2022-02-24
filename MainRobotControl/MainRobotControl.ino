@@ -9,6 +9,9 @@
  * Components List:
  * - Adafruit Motor Control Shield v2.3
  * - 4x DC Motor
+ * - 3x Stepper Motor
+ * - 1x Servo Motor
+ * - Pixy2 Smart Vision Sensor
  * - 
  * 
  ******************************************************************************************/
