@@ -7,7 +7,7 @@
 #include "A4988.h"
 #include "BasicStepperDriver.h"
 
-void initializeSteppers();
+void initializeGrabber();
 
 void clockwiseSusan(int steps);
 void counterSusan(int steps);
@@ -19,3 +19,5 @@ void extendScrew(int steps);
 void retractScrew(int steps);
 void extendSolenoid();
 void retractSolenoid();
+
+#endif

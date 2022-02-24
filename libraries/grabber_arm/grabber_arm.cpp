@@ -8,9 +8,10 @@
 
 // INCOMPLETE, DO NOT USE!!
 
+// 200 steps per revolution (probably)
 #define MOTOR_STEPS 200
 #define RPM 120
-#define MICROSTEPS 1
+#define MICROSTEPS 16
 
 #define DIR1 26
 #define STEP1 27
@@ -40,8 +41,9 @@ A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2, raiseMS1, raiseMS2, raiseMS3);
 #define extendMS3 43
 A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3, extendMS1, extendMS2, extendMS3);
 
+Servo grabberServo;
 
-void initializeMotors() {
+void initializeGrabber() {
 	// Set target RPMs
 	turnStepper.begin(RPM);
 	raiseStepper.begin(RPM);
@@ -53,7 +55,6 @@ void initializeMotors() {
 	extendStepper.setEnableActiveState(LOW);
 	
 	// Initialize servo
-	Servo grabberServo;
 	grabberServo.attach(servoPin);
 	
 	// Set solenoid as output
@@ -80,14 +81,14 @@ void retractArm(int steps) {
 
 // Servo rotation distances are as of yet undetermined
 void raiseGrabber() {
-	for(pos=0; pos<=180; pos++) {
+	for(int pos=0; pos<=180; pos++) {
 		grabberServo.write(pos); // Raising the grabber will probably take 2.7 sec.
 		delay(15);
 	}
 }
 
 void lowerGrabber() {
-	for(pos=180; pos>=0; pos--) {
+	for(int pos=180; pos>=0; pos--) {
 		grabberServo.write(pos); // Raising the grabber will probably take 2.7 sec.
 		delay(15);
 	}
