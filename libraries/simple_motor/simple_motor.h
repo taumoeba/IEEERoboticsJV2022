@@ -43,8 +43,10 @@ void driveLeft();
 // Drive right (x+)
 void driveRight();
 // Set speed of specified motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4. Speed is 0-255.
-void setSpeed(int motorNum, speed);
+void setSpeed(int motorNum, int speed);
 // Stop specific motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4. 
 void stopMotor(int motorNum);
 // Stop ALL motors
 void allStop();
+
+#endif

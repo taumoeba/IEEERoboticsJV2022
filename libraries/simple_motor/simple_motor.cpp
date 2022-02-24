@@ -30,13 +30,14 @@
 
 #include "simple_motor.h"
 
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+Adafruit_DCMotor *M1 = AFMS.getMotor(1);
+Adafruit_DCMotor *M2 = AFMS.getMotor(2);
+Adafruit_DCMotor *M3 = AFMS.getMotor(3);
+Adafruit_DCMotor *M4 = AFMS.getMotor(4);
+
 // Create motor object and link pin numbers to correct motors. Run once in setup
 void initializeMotors() {
-	Adafruit_Motorshield AFMS = Adafruit_Motorshield();
-	Adafruit_DCMotor *M1 = AFMS.getMotor(1)
-	Adafruit_DCMotor *M2 = AFMS.getMotor(2)
-	Adafruit_DCMotor *M3 = AFMS.getMotor(3)
-	Adafruit_DCMotor *M4 = AFMS.getMotor(4)
 	
 	if (!AFMS.begin()) {         // create with the default frequency 1.6KHz
 		// if (!AFMS.begin(1000)) {  // OR with a different frequency, say 1KHz
