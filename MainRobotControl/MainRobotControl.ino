@@ -1,5 +1,7 @@
 #include <Adafruit_MotorShield.h>
 
+// Currently configured for testing motor 2
+
 /*******************************************************************************************
  * Main program for LU JV IEEE Robotics 2022
  * Written by Ben Powell, Stephen Fulton, 
@@ -12,7 +14,7 @@
  * - 3x Stepper Motor
  * - 1x Servo Motor
  * - Pixy2 Smart Vision Sensor
- * - 
+ * 
  * 
  ******************************************************************************************/
 
@@ -22,7 +24,7 @@
 void setup() {
   Serial.begin(9600);
   initializeMotors();
-  initializeGrabber();
+  //initializeGrabber();
 }
 
 void loop() {
@@ -31,8 +33,9 @@ void loop() {
   // Main motors
   setSpeed(1,60);
   setSpeed(2,60);
-  setSpeed(3,60);
+  //setSpeed(3,60);
   setSpeed(4,60);
+  
   driveUp();
   delay(3000);
   driveDown();
@@ -43,24 +46,26 @@ void loop() {
   delay(3000);
   setSpeed(1,120);
   setSpeed(2,120);
-  setSpeed(3,120);
+  //setSpeed(3,120);
   setSpeed(4,120);
   driveUp();
   delay(1000);
   stopMotor(1);
-  delay(1000);
-  stopMotor(3);
+  //delay(1000);
+  //stopMotor(3);
   delay(1000);
   driveRight();
   delay(1000);
   stopMotor(2);
+  
   delay(1000);
   stopMotor(4);
   delay(1000);
   driveDown();
   delay(2000);
   allStop();
-
+  
+/*
   // grabber arm
   delay(5000);
   clockwiseSusan(100);
@@ -83,4 +88,5 @@ void loop() {
   delay(2000);
   retractSolenoid();
   delay(6000);
+  */
 }
