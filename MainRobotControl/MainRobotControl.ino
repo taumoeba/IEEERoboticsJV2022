@@ -73,7 +73,6 @@ void setup() {
   // lox3.begin(0x32);
   // digitalWrite(XSHUT4, HIGH);
   // lox4.begin(0x33);
-
 }
 
 void loop() {
@@ -221,7 +220,6 @@ void loop() {
   delay(2000);
   allStop();
   
-
   // grabber arm
   delay(5000);
   clockwiseSusan(100);
