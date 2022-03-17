@@ -1,13 +1,14 @@
 #include <Adafruit_MotorShield.h>
 
-// Currently configured for testing motors
+// Currently configured for testing
+// (also yes I know this is poorly written)
 
 /*******************************************************************************************
  * Main program for LU JV IEEE Robotics 2022
- * Written by Ben Powell, Stephen Fulton, 
+ * Written by Ben Powell and Stephen Fulton
  * April 2022
  * 
- * Microcontroller: Adafruit Grand Central M4
+ * Microcontroller: Arduino Mega 2560
  * Components List:
  * - Adafruit Motor Control Shield v2.3
  * - 4x DC Motor
@@ -15,10 +16,18 @@
  * - 1x Servo Motor
  * - Pixy2 Smart Vision Sensor
  * 
- * 
+ * Reference schematic.png for connection details
  ******************************************************************************************/
 
-//#include "grabber_arm.h"
+/* TODO:
+ * - implement classes for motor and arm libaries
+ * - build wrapper libraries for distance sensors, camera
+ * - integrate all libraries into one (probably)
+ * - Write out main control algorithm
+ * - Verify all motor numbers, directions, step counts, etc.
+ */
+
+#include "grabber_arm.h"
 #include "simple_motor.h"
 #include "Adafruit_VL53L0X.h"
 #include <Pixy2.h>
@@ -26,94 +35,77 @@
 Pixy2 pixy;
 
 Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
-//Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
-//Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
-//Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
 
 #define XSHUT1 16
 #define XSHUT2 17
 #define XSHUT3 18
 #define XSHUT4 19
 
-bool allClearNew = false;
+bool allClear = true; // set to false in final version, true for testing
 bool allClearOld = false;
 
 void setup() {
   Serial.begin(115200);
   initializeMotors();
-  //initializeGrabber();
+  initializeGrabber();
 
   pixy.init();
   pixy.changeProg("color_connected_components");
 
   pinMode(XSHUT1, OUTPUT);
-  //pinMode(XSHUT2, OUTPUT);
-  //pinMode(XSHUT3, OUTPUT);
-  // pinMode(XSHUT4, OUTPUT);
+  pinMode(XSHUT2, OUTPUT);
+  pinMode(XSHUT3, OUTPUT);
+  pinMode(XSHUT4, OUTPUT);
 
   // reset TOF sensors
   digitalWrite(XSHUT1, LOW);
-  //digitalWrite(XSHUT2, LOW);
-  // digitalWrite(XSHUT3, LOW);
-  // digitalWrite(XSHUT4, LOW);
+  digitalWrite(XSHUT2, LOW);
+  digitalWrite(XSHUT3, LOW);
+  digitalWrite(XSHUT4, LOW);
   delay(10);
   digitalWrite(XSHUT1, HIGH);
-  //digitalWrite(XSHUT2, HIGH);
-  // digitalWrite(XSHUT3, HIGH);
-  // digitalWrite(XSHUT4, HIGH);
+  digitalWrite(XSHUT2, HIGH);
+  digitalWrite(XSHUT3, HIGH);
+  digitalWrite(XSHUT4, HIGH);
 
   // set sensor addresses one-by-one
-  //digitalWrite(XSHUT2, LOW);
-  //digitalWrite(XSHUT3, LOW);
-  // digitalWrite(XSHUT4, LOW);
+  digitalWrite(XSHUT2, LOW);
+  digitalWrite(XSHUT3, LOW);
+  digitalWrite(XSHUT4, LOW);
   lox1.begin(0x30);
-  //digitalWrite(XSHUT2, HIGH);
-  //lox2.begin(0x31);
-  // digitalWrite(XSHUT3, HIGH);
-  // lox3.begin(0x32);
-  // digitalWrite(XSHUT4, HIGH);
-  // lox4.begin(0x33);
+  digitalWrite(XSHUT2, HIGH);
+  lox2.begin(0x31);
+  digitalWrite(XSHUT3, HIGH);
+  lox3.begin(0x32);
+  digitalWrite(XSHUT4, HIGH);
+  lox4.begin(0x33);
 }
 
-void loop() {
-/*****************************************
- * DISTANCE SENSORS
- *****************************************/
+/*******************************************
+ * FUNCTION DEFINITIONS -- MOVE TO LIBRARY
+ *******************************************/
+
+ void distSenseSetup() {
   VL53L0X_RangingMeasurementData_t measure1;
-  //VL53L0X_RangingMeasurementData_t measure2;
-  //VL53L0X_RangingMeasurementData_t measure3;
-  //VL53L0X_RangingMeasurementData_t measure4;
+  VL53L0X_RangingMeasurementData_t measure2;
+  VL53L0X_RangingMeasurementData_t measure3;
+  VL53L0X_RangingMeasurementData_t measure4;
 
   lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
-  //lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
-  //lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
-  //lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
+  lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
+  lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
+  lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
+ }
 
+ void printRanges() {
   if (measure1.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print("Distance 1 (mm): "); Serial.println(measure1.RangeMilliMeter);
   } else {
     Serial.println(" sensor 1 out of range ");
   }
-
-  if(measure1.RangeMilliMeter >= 450) {
-      allClearNew = true;
-      setSpeed(1,100);
-      setSpeed(2,100);
-      setSpeed(3,100);
-      setSpeed(4,100);
-    }
-    else if(measure1.RangeMilliMeter >= 250) {
-      allClearNew = true;
-      setSpeed(1,60);
-      setSpeed(2,60);
-      setSpeed(3,60);
-      setSpeed(4,60);
-    }
-    else if(measure1.RangeMilliMeter < 250) {
-      allClearNew = false;
-    }
-
-  /*
   if (measure2.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print("Distance 2 (mm): "); Serial.println(measure2.RangeMilliMeter);
   } else {
@@ -131,25 +123,52 @@ void loop() {
   } else {
     Serial.println(" sensor 4 out of range ");
   }
-  */
+ }
+
+void loop() {
+/*****************************************
+ * DISTANCE SENSORS
+ *****************************************/
+  // set up distance sensors
+  distSenseSetup();
+
+  // print out distances to serial
+  printRanges();
+
+  // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
+  if(measure1.RangeMilliMeter >= 450) {
+      allClear = true;
+      setSpeed(1,100);
+      setSpeed(2,100);
+      setSpeed(3,100);
+      setSpeed(4,100);
+    }
+    else if(measure1.RangeMilliMeter >= 250) {
+      allClear = true;
+      setSpeed(1,60);
+      setSpeed(2,60);
+      setSpeed(3,60);
+      setSpeed(4,60);
+    }
+    else if(measure1.RangeMilliMeter < 250) {
+      allClear = false;
+    }
 
   /************************************************
    * PIXY CAMERA
    ***********************************************/
 
-   int i; 
-   // grab blocks!
    pixy.ccc.getBlocks();
    
-   // If there are detect blocks, print them!
+   // If there are detected blocks, stop driving
    if (pixy.ccc.numBlocks)
    {
     Serial.println("********CUP DETECTED*****");
-    allClearNew = false;
+    allClear = false; // stop driving
     /*
      Serial.print("Detected ");
      Serial.println(pixy.ccc.numBlocks);
-     for (i=0; i<pixy.ccc.numBlocks; i++)
+     for (int i=0; i<pixy.ccc.numBlocks; i++)
      {
        Serial.print("  block ");
        Serial.print(i);
@@ -162,14 +181,14 @@ void loop() {
   /******************************************
    * MOTORS
    *****************************************/
-
-   if(allClearNew != allClearOld) {
-    if(allClearNew) {
+   // only drive if sensors reporting all clear
+   if(allClear != allClearOld) {
+    if(allClear) {
       driveUp();
     } else {
       allStop();
     }
-    allClearOld = allClearNew;
+    allClearOld = allClear;
    }
   /*
   // Testing all motor functions
