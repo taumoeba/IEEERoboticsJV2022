@@ -21,7 +21,6 @@
 #define STEP3 39
 
 #define servoPin 9
-#define solenoidPin 12
 
 const int raiseSteps = 0;  // number of steps to raise arm. unkown as of yet
 const int extendSteps = 0; // number of steps to extend leadscrew. unknown as of yet
@@ -48,15 +47,15 @@ void initializeGrabber() {
 	turnStepper.begin(RPM);
 	raiseStepper.begin(RPM);
 	extendStepper.begin(RPM);
-	
+
 	// Enable motors. TODO: CHECK IF FUNCTION USES CORRECT PIN
 	turnStepper.setEnableActiveState(LOW);
 	raiseStepper.setEnableActiveState(LOW);
 	extendStepper.setEnableActiveState(LOW);
-	
+
 	// Initialize servo
 	grabberServo.attach(servoPin);
-	
+
 	// Set solenoid as output
 	pinMode(solenoidPin, OUTPUT);
 }
@@ -79,16 +78,16 @@ void retractArm(int steps) {
 	raiseStepper.move(-steps);
 }
 
-// Servo rotation distances are as of yet undetermined
-void raiseGrabber() {
-	for(int pos=0; pos<=180; pos++) {
+// The steps value should be a constant that is determined via testing
+void raiseGrabber(int steps) {
+	for(int pos=0; pos<=steps; pos++) {
 		grabberServo.write(pos); // Raising the grabber will probably take 2.7 sec.
 		delay(15);
 	}
 }
 
-void lowerGrabber() {
-	for(int pos=180; pos>=0; pos--) {
+void lowerGrabber(int steps) {
+	for(int pos=steps; pos>=0; pos--) {
 		grabberServo.write(pos); // Raising the grabber will probably take 2.7 sec.
 		delay(15);
 	}
@@ -101,13 +100,4 @@ void extendScrew(int steps) {
 
 void retractScrew(int steps) {
 	extendStepper.move(-steps);
-}
-
-// If solenoid is normally retracted, reverse HIGH and LOW here
-void extendSolenoid() {
-	digitalWrite(solenoidPin, LOW);
-}
-
-void retractSolenoid() {
-	digitalWrite(solenoidPin, HIGH);
 }

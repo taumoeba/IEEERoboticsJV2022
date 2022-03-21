@@ -87,7 +87,7 @@ void setup() {
 /*******************************************
  * FUNCTION DEFINITIONS -- MOVE TO LIBRARY
  *******************************************/
-
+/*
  void distSenseSetup() {
   VL53L0X_RangingMeasurementData_t measure1;
   VL53L0X_RangingMeasurementData_t measure2;
@@ -124,16 +124,47 @@ void setup() {
     Serial.println(" sensor 4 out of range ");
   }
  }
+ */
 
 void loop() {
 /*****************************************
  * DISTANCE SENSORS
  *****************************************/
+  // The distance sensor setup code doesn't like being in a function. Just leave it here.
   // set up distance sensors
-  distSenseSetup();
+  VL53L0X_RangingMeasurementData_t measure1;
+  VL53L0X_RangingMeasurementData_t measure2;
+  VL53L0X_RangingMeasurementData_t measure3;
+  VL53L0X_RangingMeasurementData_t measure4;
+
+  lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
+  lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
+  lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
+  lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
 
   // print out distances to serial
-  printRanges();
+  if (measure1.RangeStatus != 4) {  // phase failures have incorrect data
+    Serial.print("Distance 1 (mm): "); Serial.println(measure1.RangeMilliMeter);
+  } else {
+    Serial.println(" sensor 1 out of range ");
+  }
+  if (measure2.RangeStatus != 4) {  // phase failures have incorrect data
+    Serial.print("Distance 2 (mm): "); Serial.println(measure2.RangeMilliMeter);
+  } else {
+    Serial.println(" sensor 2 out of range ");
+  }
+  
+  if (measure3.RangeStatus != 4) {  // phase failures have incorrect data
+    Serial.print("Distance 1 (mm): "); Serial.println(measure3.RangeMilliMeter);
+  } else {
+    Serial.println(" sensor 3 out of range ");
+  }
+  
+  if (measure4.RangeStatus != 4) {  // phase failures have incorrect data
+    Serial.print("Distance 1 (mm): "); Serial.println(measure4.RangeMilliMeter);
+  } else {
+    Serial.println(" sensor 4 out of range ");
+  }
 
   // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
   if(measure1.RangeMilliMeter >= 450) {

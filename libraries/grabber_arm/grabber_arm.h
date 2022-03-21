@@ -2,7 +2,7 @@
 #define GRABBER_ARM_H
 
 /*
-* Yes, I'm aware this should be a proper class and all that. 
+* Yes, I'm aware this should be a proper class and all that.
 * If I somehow find extra time after getting this robot working I'll clean it up.
 */
 
@@ -18,11 +18,9 @@ void clockwiseSusan(int steps);
 void counterSusan(int steps);
 void extendArm(int steps);
 void retractArm(int steps);
-void raiseGrabber();
-void lowerGrabber();
+void raiseGrabber(int steps);
+void lowerGrabber(int steps);
 void extendScrew(int steps);
 void retractScrew(int steps);
-void extendSolenoid();
-void retractSolenoid();
 
 #endif
