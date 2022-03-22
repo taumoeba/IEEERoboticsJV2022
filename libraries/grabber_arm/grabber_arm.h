@@ -16,11 +16,12 @@ void initializeGrabber();
 
 void clockwiseSusan(int steps);
 void counterSusan(int steps);
-void extendArm(int steps);
-void retractArm(int steps);
-void raiseGrabber(int steps);
-void lowerGrabber(int steps);
+void raiseArm(int steps);
+void lowerArm(int steps);
+void setGrabber(int degrees);
 void extendScrew(int steps);
 void retractScrew(int steps);
+void openClaw();
+void closeClaw();
 
 #endif

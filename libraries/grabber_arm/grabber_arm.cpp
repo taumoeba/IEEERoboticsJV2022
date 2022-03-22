@@ -57,7 +57,7 @@ void initializeGrabber() {
 	grabberServo.attach(servoPin);
 
 	// Set solenoid as output
-	pinMode(solenoidPin, OUTPUT);
+	//pinMode(solenoidPin, OUTPUT);
 }
 
 // Note: Clockwise and counterclockwise may be reversed. Testing needed
@@ -70,27 +70,16 @@ void counterSusan(int steps) {
 }
 
 // Step amounts for extend/retract are not yet determined
-void extendArm(int steps) {
+void raiseArm(int steps) {
 	raiseStepper.move(steps);
 }
 
-void retractArm(int steps) {
+void lowerArm(int steps) {
 	raiseStepper.move(-steps);
 }
 
-// The steps value should be a constant that is determined via testing
-void raiseGrabber(int steps) {
-	for(int pos=0; pos<=steps; pos++) {
-		grabberServo.write(pos); // Raising the grabber will probably take 2.7 sec.
-		delay(15);
-	}
-}
-
-void lowerGrabber(int steps) {
-	for(int pos=steps; pos>=0; pos--) {
-		grabberServo.write(pos); // Raising the grabber will probably take 2.7 sec.
-		delay(15);
-	}
+void setGrabber(int degrees) {
+	grabberServo.write(degrees);
 }
 
 // Once again, step number is as-of-yet undetermined.
@@ -100,4 +89,12 @@ void extendScrew(int steps) {
 
 void retractScrew(int steps) {
 	extendStepper.move(-steps);
+}
+
+void openClaw() {
+	// TODO
+}
+
+void closeClaw() {
+	// TODO
 }
