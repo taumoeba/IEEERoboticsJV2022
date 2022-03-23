@@ -22,12 +22,10 @@
 /* TODO:
  * - implement classes for motor and arm libaries
  * - build wrapper libraries for distance sensors, camera
- * - integrate all libraries into one (probably)
  * - Write out main control algorithm
  * - Verify all motor numbers, directions, step counts, etc.
  */
 
-#include "grabber_arm.h"
 #include "simple_motor.h"
 #include "Adafruit_VL53L0X.h"
 #include <Pixy2.h>
@@ -50,7 +48,6 @@ bool allClearOld = false;
 void setup() {
   Serial.begin(115200);
   initializeMotors();
-  initializeGrabber();
 
   pixy.init();
   pixy.changeProg("color_connected_components");

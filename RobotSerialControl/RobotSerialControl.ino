@@ -4,7 +4,7 @@
  * Program for testing 2022 Lipscomb IEEE Robotics robot
  ******************************************************************************************/
 
-#include "grabber_arm.h"
+//#include "grabber_arm.h"
 #include "simple_motor.h"
 #include "Adafruit_VL53L0X.h"
 #include <Pixy2.h>
@@ -34,7 +34,6 @@ int grabberPosition = 30;
 void setup() {
   Serial.begin(115200);
   initializeMotors();
-  initializeGrabber();
 
   pixy.init();
   pixy.changeProg("color_connected_components");
