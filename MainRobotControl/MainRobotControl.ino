@@ -28,6 +28,7 @@
  */
 
 #include "simple_motor.h"
+#include "coord_system.h"
 #include "Adafruit_VL53L0X.h"
 #include <Pixy2.h>
 
@@ -45,6 +46,27 @@ Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
 
 bool allClear = true; // set to false in final version, true for testing
 bool allClearOld = false;
+
+
+
+void currentPosLog(){
+    //all of these can change to satisfy overall design
+
+    //up and left are garunteed to be seen
+    double up = measure1.RangeInches + fromcenter;
+    double left = measure3.RangeInches + fromcenter;
+
+    //there might not be a visible wall for these sensors,
+    //use these later on for double checking
+    //double down = measure2.RangeInches + fromcenter;
+    //double right = measure4.RangeInches + fromcenter;
+
+    //these gives the distances of the robot from the center
+
+
+    currentpos.x = left;
+    currentpos.y = 48 - up;
+}
 
 void setup() {
   Serial.begin(115200);
@@ -165,7 +187,7 @@ void loop() {
   }
 
   // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
-  if(measure1.RangeMilliMeter >= 450) {
+  if(measure1.RangeMilliMeter >= 450) { //change to RangeInches
       allClear = true;
       setSpeed(1,100);
       setSpeed(2,100);

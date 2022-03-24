@@ -39,3 +39,22 @@ void logcup(){
             break;
     }
 }
+
+void currentPosLog(){
+    //all of these can change to satisfy overall design
+
+    //up and left are garunteed to be seen
+    double up = measure1.RangeInches + fromcenter;
+    double left = measure3.RangeInches + fromcenter;
+
+    //there might not be a visible wall for these sensors,
+    //use these later on for double checking
+    //double down = measure2.RangeInches + fromcenter;
+    //double right = measure4.RangeInches + fromcenter;
+
+    //these gives the distances of the robot from the center
+
+
+    currentpos.x = left;
+    currentpos.y = 48 - up;
+}
