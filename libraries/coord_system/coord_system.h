@@ -29,9 +29,13 @@ board dimensions: 48" by 96"
 first tree 12,7
 second tree 75,36
 
+initial center of the robot 24,6
+
 */
 
-#define cupdistance 4   //this is currently in inches, can change later
+#define cupdistance 12   //this is currently in inches, can change later
+#define tocords(steps) (double)(steps/2) //experimentation will make this more precise
+#define toinches(millimeters) (double)(millimeters*0.0393701) //current assumption is that distance sensors read mm and i'm using inches
 
 struct position{
     double x;
