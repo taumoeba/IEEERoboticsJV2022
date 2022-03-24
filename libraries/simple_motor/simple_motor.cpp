@@ -6,16 +6,16 @@
  * M2 and M4 are aligned with the 'X' axis, and M1 and M3 with the 'Y' axis.
  *************************************************************************/
 
-//  THIS IS UNFINISHED, DO NOT USE!!!
+//  THIS IS UNFINISHED, DO NOT USE
 
  /* Shape of field. "Up" is y+. "Down" is y-. "Left" is x-. "Right" is x+.
  Robot starts at A.
 
-    ------------------------------------------------------
+    ----------------------------------------------------
 	|         ^                                          |
 	|         y+                                         |
 	|    < x-   x+ >                                     |
-	|         y-	                                     |
+	|         y-	                                       |
 	|         v                                          |
 	|                -------------------------------------
 	|                |
@@ -33,34 +33,27 @@
 // 200 steps per revolution (probably)
 #define MOTOR_STEPS 200
 #define RPM 120
-#define MICROSTEPS 16
 #define DIR1 26
 #define STEP1 27
 #define DIR2 32
 #define STEP2 33
 #define DIR3 38
 #define STEP3 39
-#define servoPin 9
+#define GRABBER_SERVO_PIN 9
+#define CLAW_SERVO_PIN 10
+#define SOLENOID_PIN 12
 
 const int raiseSteps = 0;  // number of steps to raise arm. unkown as of yet
 const int extendSteps = 0; // number of steps to extend leadscrew. unknown as of yet
+const int clawOpenDegrees = 45; // DEFINITELY WRONG. TEST!
+const int clawClosedDegrees = 0; // DEFINITELY WRONG. TEST!
 
-#define turnMS1 29
-#define turnMS2 30
-#define turnMS3 31
-A4988 turnStepper(MOTOR_STEPS, DIR1, STEP1, turnMS1, turnMS2, turnMS3);
-
-#define raiseMS1 35
-#define raiseMS2 36
-#define raiseMS3 37
-A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2, raiseMS1, raiseMS2, raiseMS3);
-
-#define extendMS1 41
-#define extendMS2 42
-#define extendMS3 43
-A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3, extendMS1, extendMS2, extendMS3);
+A4988 turnStepper(MOTOR_STEPS, DIR1, STEP1);
+A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2);
+A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3);
 
 Servo grabberServo;
+Servo clawServo;
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *M1 = AFMS.getMotor(1);
@@ -89,10 +82,11 @@ void initializeMotors() {
   extendStepper.setEnableActiveState(LOW);
 
   // Initialize servo
-  grabberServo.attach(servoPin);
+  grabberServo.attach(GRABBER_SERVO_PIN);
+	clawServo.attach(CLAW_SERVO_PIN);
 
   // Set solenoid as output
-  //pinMode(solenoidPin, OUTPUT);
+  pinMode(SOLENOID_PIN, OUTPUT);
 }
 // TODO: Test motor directions (forward, backward)
 
@@ -194,9 +188,9 @@ void retractScrew(int steps) {
 }
 
 void openClaw() {
-	// TODO
+	clawServo.write(clawOpenDegrees);
 }
 
 void closeClaw() {
-	// TODO
+	clawServo.write(clawClosedDegrees);
 }

@@ -14,14 +14,15 @@
  * - 4x DC Motor
  * - 3x Stepper Motor
  * - 1x Servo Motor
+ * - 4x Adafruit VL53L0X Time-of-Flight Sensor
  * - Pixy2 Smart Vision Sensor
  * 
  * Reference schematic.png for connection details
  ******************************************************************************************/
 
 /* TODO:
- * - implement classes for motor and arm libaries
- * - build wrapper libraries for distance sensors, camera
+ * - implement actual classes for motor and arm libaries
+ * - build wrapper libraries for distance sensors, camera ??
  * - Write out main control algorithm
  * - Verify all motor numbers, directions, step counts, etc.
  */
