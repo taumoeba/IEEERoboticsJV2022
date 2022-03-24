@@ -38,6 +38,34 @@
 #include "A4988.h"
 #include "BasicStepperDriver.h"
 
+class driveMotors {
+public:
+  driveMotors();
+  void initialize();
+  void forward();
+  void reverse();
+  void left();
+  void right();
+  void setSpeed(int speed);
+  void stopMotor(int motorNum);
+  void allStop();
+}
+
+class armMotors {
+public:
+  armMotors(int motorSteps, int dir1, int dir2, int dir3, int step1, int step2, int step3);
+  void initialize();
+  void clockwiseSusan(int steps);
+  void counterSusan(int steps);
+  void raiseArm(int steps);
+  void lowerArm(int steps);
+  void setGrabber(int steps);
+  void extendScrew(int steps);
+  void retractScrew(int steps);
+  void openClaw();
+  void closeClaw();
+}
+/*
 // Create motor object and link pin numbers to correct motors. Run once in setup
 void initializeMotors();
 // Drive up (y+)
@@ -65,5 +93,6 @@ void extendScrew(int steps);
 void retractScrew(int steps);
 void openClaw();
 void closeClaw();
+*/
 
 #endif

@@ -48,21 +48,26 @@ const int extendSteps = 0; // number of steps to extend leadscrew. unknown as of
 const int clawOpenDegrees = 45; // DEFINITELY WRONG. TEST!
 const int clawClosedDegrees = 0; // DEFINITELY WRONG. TEST!
 
-A4988 turnStepper(MOTOR_STEPS, DIR1, STEP1);
-A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2);
-A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3);
+armMotors::armMotors(int motorSteps, int dir1, int dir2, int dir3, int step1, int step2, int step3) {
+	A4988 turnStepper(MOTOR_STEPS, DIR1, STEP1);
+	A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2);
+	A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3);
 
-Servo grabberServo;
-Servo clawServo;
+	Servo grabberServo;
+	Servo clawServo;
+}
 
-Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-Adafruit_DCMotor *M1 = AFMS.getMotor(1);
-Adafruit_DCMotor *M2 = AFMS.getMotor(2);
-Adafruit_DCMotor *M3 = AFMS.getMotor(3);
-Adafruit_DCMotor *M4 = AFMS.getMotor(4);
+// driveMotor class constructor
+driveMotors::driveMotors() {
+	Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+	Adafruit_DCMotor *M1 = AFMS.getMotor(1);
+	Adafruit_DCMotor *M2 = AFMS.getMotor(2);
+	Adafruit_DCMotor *M3 = AFMS.getMotor(3);
+	Adafruit_DCMotor *M4 = AFMS.getMotor(4);
+}
 
 // Create motor object and link pin numbers to correct motors. Run once in setup
-void initializeMotors() {
+void driveMotors::initialize() {
 
 	if (!AFMS.begin()) {         // create with the default frequency 1.6KHz
 		// if (!AFMS.begin(1000)) {  // OR with a different frequency, say 1KHz
@@ -70,7 +75,9 @@ void initializeMotors() {
 		while (1);
 	}
 	Serial.println("Motor Shield found.");
+}
 
+void armMotors::initialize() {
   // Set target RPMs
   turnStepper.begin(RPM);
   raiseStepper.begin(RPM);
@@ -91,46 +98,34 @@ void initializeMotors() {
 // TODO: Test motor directions (forward, backward)
 
 // Drive up (y+)
-void driveUp() {
+void driveMotors::forward() {
 	M1->run(FORWARD);
 	M3->run(FORWARD);
 }
 // Drive down (y-)
-void driveDown() {
+void driveMotors::backward() {
 	M1->run(BACKWARD);
 	M3->run(BACKWARD);
 }
 // Drive left (x-)
-void driveLeft() {
+void driveMotors::left() {
 	M2->run(BACKWARD);
 	M4->run(BACKWARD);
 }
 // Drive right (x+)
-void driveRight() {
+void driveMotors::right() {
 	M2->run(FORWARD);
 	M4->run(FORWARD);
 }
 // Set speed of specified motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4. Speed is 0-255.
-void setSpeed(int motorNum, int speed) {
-	switch(motorNum) {
-		case 1:
-			M1->setSpeed(speed);
-			break;
-		case 2:
-			M2->setSpeed(speed);
-			break;
-		case 3:
-			M3->setSpeed(speed);
-			break;
-		case 4:
-			M4->setSpeed(speed);
-			break;
-		default:
-			break;
-	}
+void driveMotors::setSpeed(int speed) {
+	M1->setSpeed(speed);
+	M2->setSpeed(speed);
+	M3->setSpeed(speed);
+	M4->setSpeed(speed);
 }
 // Stop specific motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4.
-void stopMotor(int motorNum) {
+void driveMotors::stopMotor(int motorNum) {
 	switch(motorNum) {
 		case 1:
 			M1->run(RELEASE);
@@ -149,48 +144,48 @@ void stopMotor(int motorNum) {
 	}
 }
 // Stop ALL motors
-void allStop() {
+void driveMotors::allStop() {
 	M1->run(RELEASE);
 	M2->run(RELEASE);
 	M3->run(RELEASE);
 	M4->run(RELEASE);
 }
-
+*/
 // Note: Clockwise and counterclockwise may be reversed. Testing needed
-void clockwiseSusan(int steps) {
+void armMotors::clockwiseSusan(int steps) {
 	turnStepper.move(steps);
 }
 
-void counterSusan(int steps) {
+void armMotors::counterSusan(int steps) {
 	turnStepper.move(-steps);
 }
 
 // Step amounts for extend/retract are not yet determined
-void raiseArm(int steps) {
+void armMotors::raiseArm(int steps) {
 	raiseStepper.move(steps);
 }
 
-void lowerArm(int steps) {
+void armMotors::lowerArm(int steps) {
 	raiseStepper.move(-steps);
 }
 
-void setGrabber(int degrees) {
+void armMotors::setGrabber(int degrees) {
 	grabberServo.write(degrees);
 }
 
 // Once again, step number is as-of-yet undetermined.
-void extendScrew(int steps) {
+void armMotors::extendScrew(int steps) {
 	extendStepper.move(steps);
 }
 
-void retractScrew(int steps) {
+void armMotors:retractScrew(int steps) {
 	extendStepper.move(-steps);
 }
 
-void openClaw() {
+void armMotors::openClaw() {
 	clawServo.write(clawOpenDegrees);
 }
 
-void closeClaw() {
+void armMotors::closeClaw() {
 	clawServo.write(clawClosedDegrees);
 }
