@@ -41,7 +41,7 @@
 class driveMotors {
 public:
   driveMotors();
-  void initialize();
+  //void initialize();
   void forward();
   void reverse();
   void left();
@@ -49,12 +49,12 @@ public:
   void setSpeed(int speed);
   void stopMotor(int motorNum);
   void allStop();
-}
+};
 
 class armMotors {
 public:
-  armMotors(int motorSteps, int dir1, int dir2, int dir3, int step1, int step2, int step3);
-  void initialize();
+  armMotors();
+  //void initialize();
   void clockwiseSusan(int steps);
   void counterSusan(int steps);
   void raiseArm(int steps);
@@ -64,7 +64,7 @@ public:
   void retractScrew(int steps);
   void openClaw();
   void closeClaw();
-}
+};
 /*
 // Create motor object and link pin numbers to correct motors. Run once in setup
 void initializeMotors();

@@ -48,24 +48,50 @@ const int extendSteps = 0; // number of steps to extend leadscrew. unknown as of
 const int clawOpenDegrees = 45; // DEFINITELY WRONG. TEST!
 const int clawClosedDegrees = 0; // DEFINITELY WRONG. TEST!
 
-armMotors::armMotors(int motorSteps, int dir1, int dir2, int dir3, int step1, int step2, int step3) {
-	A4988 turnStepper(MOTOR_STEPS, DIR1, STEP1);
-	A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2);
-	A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3);
+Adafruit_MotorShield AFMS = Adafruit_MotorShield();
+Adafruit_DCMotor *M1 = AFMS.getMotor(1);
+Adafruit_DCMotor *M2 = AFMS.getMotor(2);
+Adafruit_DCMotor *M3 = AFMS.getMotor(3);
+Adafruit_DCMotor *M4 = AFMS.getMotor(4);
 
-	Servo grabberServo;
-	Servo clawServo;
+A4988 turnStepper(MOTOR_STEPS, DIR1, STEP1);
+A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2);
+A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3);
+
+Servo grabberServo;
+Servo clawServo;
+
+armMotors::armMotors() {
+
+	turnStepper.begin(RPM);
+  raiseStepper.begin(RPM);
+  extendStepper.begin(RPM);
+
+  // Enable motors. TODO: CHECK IF FUNCTION USES CORRECT PIN
+  turnStepper.setEnableActiveState(LOW);
+  raiseStepper.setEnableActiveState(LOW);
+  extendStepper.setEnableActiveState(LOW);
+
+  // Initialize servo
+  grabberServo.attach(GRABBER_SERVO_PIN);
+	clawServo.attach(CLAW_SERVO_PIN);
+
+  // Set solenoid as output
+  pinMode(SOLENOID_PIN, OUTPUT);
 }
 
 // driveMotor class constructor
 driveMotors::driveMotors() {
-	Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-	Adafruit_DCMotor *M1 = AFMS.getMotor(1);
-	Adafruit_DCMotor *M2 = AFMS.getMotor(2);
-	Adafruit_DCMotor *M3 = AFMS.getMotor(3);
-	Adafruit_DCMotor *M4 = AFMS.getMotor(4);
-}
 
+	if (!AFMS.begin()) {         // create with the default frequency 1.6KHz
+			// if (!AFMS.begin(1000)) {  // OR with a different frequency, say 1KHz
+			Serial.println("Could not find Motor Shield. Check wiring.");
+			while (1);
+		}
+		Serial.println("Motor Shield found.");
+	}
+
+/*
 // Create motor object and link pin numbers to correct motors. Run once in setup
 void driveMotors::initialize() {
 
@@ -95,6 +121,7 @@ void armMotors::initialize() {
   // Set solenoid as output
   pinMode(SOLENOID_PIN, OUTPUT);
 }
+*/
 // TODO: Test motor directions (forward, backward)
 
 // Drive up (y+)
@@ -103,7 +130,7 @@ void driveMotors::forward() {
 	M3->run(FORWARD);
 }
 // Drive down (y-)
-void driveMotors::backward() {
+void driveMotors::reverse() {
 	M1->run(BACKWARD);
 	M3->run(BACKWARD);
 }
@@ -150,7 +177,7 @@ void driveMotors::allStop() {
 	M3->run(RELEASE);
 	M4->run(RELEASE);
 }
-*/
+
 // Note: Clockwise and counterclockwise may be reversed. Testing needed
 void armMotors::clockwiseSusan(int steps) {
 	turnStepper.move(steps);
@@ -178,7 +205,7 @@ void armMotors::extendScrew(int steps) {
 	extendStepper.move(steps);
 }
 
-void armMotors:retractScrew(int steps) {
+void armMotors::retractScrew(int steps) {
 	extendStepper.move(-steps);
 }
 
