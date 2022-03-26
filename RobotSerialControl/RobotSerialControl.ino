@@ -30,14 +30,18 @@ byte incomingByte;
 // testing needed
 int grabberPosition = 30;
 
+driveMotors drive = driveMotors();
+armMotors arm = armMotors();
+
 void setup() {
   Serial.begin(115200);
-  initializeMotors();
+  //drive.initialize();
+  //arm.initialize();
 
-/*
+
   pixy.init();
   pixy.changeProg("color_connected_components");
-*/
+
   pinMode(XSHUT1, OUTPUT);
   pinMode(XSHUT2, OUTPUT);
   pinMode(XSHUT3, OUTPUT);
@@ -130,17 +134,11 @@ void loop() {
   // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
   if(measure1.RangeMilliMeter >= 450) {
       allClear = true;
-      setSpeed(1,100);
-      setSpeed(2,100);
-      setSpeed(3,100);
-      setSpeed(4,100);
+      drive.setSpeed(100);
     }
     else if(measure1.RangeMilliMeter >= 250) {
       allClear = true;
-      setSpeed(1,60);
-      setSpeed(2,60);
-      setSpeed(3,60);
-      setSpeed(4,60);
+      drive.setSpeed(60);
     }
     else if(measure1.RangeMilliMeter < 250) {
       allClear = false;
@@ -150,7 +148,7 @@ void loop() {
    * PIXY CAMERA
    ***********************************************/
 
-   //pixy.ccc.getBlocks();
+   pixy.ccc.getBlocks();
 
    if(pixyDebug) {
     printPixyInfo();
@@ -194,92 +192,92 @@ void loop() {
     switch(incomingByte) {
       case 'w':
       case'W':
-        allStop();
-        driveUp();
+        drive.allStop();
+        drive.forward();
         break;
       case 'a':
       case 'A':
-        allStop();
-        driveLeft();
+        drive.allStop();
+        drive.left();
         break;
       case 's':
       case 'S':
-        allStop();
-        driveDown();
+        drive.allStop();
+        drive.reverse();
         break;
       case 'd':
       case 'D':
-        allStop();
-        driveRight();
+        drive.allStop();
+        drive.right();
         break;
       case 'n':
-        counterSusan(1);
+        arm.counterSusan(1);
         break;
       case 'N':
-        counterSusan(10);
+        arm.counterSusan(10);
         break;
       case 'm':
-        clockwiseSusan(1);
+        arm.clockwiseSusan(1);
         break;
       case 'M':
-        clockwiseSusan(10);
+        arm.clockwiseSusan(10);
         break;
       case 't':
-        raiseArm(1);
+        arm.raiseArm(1);
         break;
       case 'T':
-        raiseArm(10);
+        arm.raiseArm(10);
         break;
       case 'g':
-        lowerArm(1);
+        arm.lowerArm(1);
         break;
       case 'G':
-        lowerArm(10);
+        arm.lowerArm(10);
         break;
       case 'y':
         grabberPosition += 10;
-        setGrabber(grabberPosition);
+        arm.setGrabber(grabberPosition);
         break;
       case 'Y':
         grabberPosition = 180;
-        setGrabber(grabberPosition);
+        arm.setGrabber(grabberPosition);
         break;
       case 'h':
         grabberPosition -= 10;
-        setGrabber(grabberPosition);
+        arm.setGrabber(grabberPosition);
         break;
       case 'H':
         grabberPosition = 30;
-        setGrabber(grabberPosition);
+        arm.setGrabber(grabberPosition);
         break;
       case 'u':
-        extendScrew(1);
+        arm.extendScrew(1);
         break;
       case 'U':
-        extendScrew(10);
+        arm.extendScrew(10);
         break;
       case 'j':
-        retractScrew(1);
+        arm.retractScrew(1);
         break;
       case 'J':
-        retractScrew(10);
+        arm.retractScrew(10);
         break;
       case 'i':
       case 'I':
-        openClaw();
+        arm.openClaw();
         break;
       case 'k':
       case 'K':
-        closeClaw();
+        arm.closeClaw();
         break;
       case 'q':
       case 'Q':
-        allStop();
+        drive.allStop();
         break;
       case 'z':
       case 'Z':
-        allStop();
-        setGrabber(45);
+        drive.allStop();
+        arm.setGrabber(45);
         pixyDebug = true;
         distDebug = true;
         break;
@@ -290,7 +288,7 @@ void loop() {
         pixyDebug = !pixyDebug;
         break;
       case 'o':
-      // FIX
+      // FIX EVENTUALLY
         if (measure1.RangeStatus != 4) {  // phase failures have incorrect data
           Serial.print("Distance 1 (mm): "); Serial.println(measure1.RangeMilliMeter);
         } else {
