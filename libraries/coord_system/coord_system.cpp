@@ -1,4 +1,5 @@
 #include "coord_system.h"
+#include "MainRobotControl.h"
 
 // this is the code for how the robot moves around and logs the position of the cups
 void setup(){

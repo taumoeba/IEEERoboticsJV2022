@@ -57,6 +57,7 @@ public:
   void initialize();
   void clockwiseSusan(int steps);
   void counterSusan(int steps);
+  void turnSusan(bool dir);
   void raiseArm(int steps);
   void lowerArm(int steps);
   void setGrabber(int steps);
