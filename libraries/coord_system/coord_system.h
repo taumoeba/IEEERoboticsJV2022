@@ -59,3 +59,4 @@ direction pixy = left;    //initialize to left, where it should be pointed at.
                         //change this inside of susan functions
 
 void logcup();
+void currentPosLog();

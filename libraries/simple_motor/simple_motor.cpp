@@ -43,6 +43,9 @@
 #define CLAW_SERVO_PIN 10
 #define SOLENOID_PIN 12
 
+//number of steps to get a 90degree turn from susan
+#define QUARTER_TURN 450	//testing needed to get precise amount
+
 const int raiseSteps = 0;  // number of steps to raise arm. unkown as of yet
 const int extendSteps = 0; // number of steps to extend leadscrew. unknown as of yet
 const int clawOpenDegrees = 45; // Tested
@@ -179,12 +182,20 @@ void driveMotors::allStop() {
 }
 
 // Note: Clockwise and counterclockwise may be reversed. Testing needed
+
 void armMotors::clockwiseSusan(int steps) {
 	turnStepper.move(steps);
 }
 
 void armMotors::counterSusan(int steps) {
 	turnStepper.move(-steps);
+}
+
+void turnSusan(bool dir){	// 0 = c, 1 = cc
+	if(dir)
+		counterSusan(QUARTER_TURN);
+	else
+		clockwiseSusan(QUARTER_TURN);
 }
 
 // Step amounts for extend/retract are not yet determined
