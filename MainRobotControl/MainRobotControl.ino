@@ -307,7 +307,7 @@ void loop() {
     turnSusan(0);
 
     left();
-    while(currentpos.x =< 84){  //the turning point of the robot
+    while(currentpos.x =< 90                         ){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundCup()){
         allStop();
@@ -334,7 +334,7 @@ void loop() {
     turnSusan(0);
 
     reverse();
-    while(currentpos.y =< 24){  //the turning point of the robot
+    while(currentpos.y > 6){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundCup()){
         allStop();
@@ -348,7 +348,76 @@ void loop() {
   else{
     //this is where we will grab the beads off the trees and put into the cups,
     //we will probably want to loop through this multiple times to grab all beads, maybe 4 times at most?
+    
+    //if in short part, move up/down, else move left right
+    for(int i = 0; i < cupindex; ++i){
+      //we need to go to the first tree
+      treeindex = i % 2; //in case there is more than 2 cups, make sure that i is either 0 or 1
+      
+      //we need to figure out where we are on the board and where we are in relation to the trees
+      int xdif = trees[treeindex].x - currentpos.x;
+      int ydif = trees[treeindex].y - currentpos.y;
 
+      //check to see if we need to move in two directions both ways
+      if(xdif > 0 && ydif > 0){
+        foward();
+        while(currentpos.y =< trees[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+        left();
+        while(currentpos.x =< trees[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(xdif < 0 && ydif < 0){
+        right();
+        while(currentpos.x >= trees[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+        reverse();
+        while(currentpos.y >= trees[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      //single directional movement
+      else if(xdif > 0){
+        foward();
+        while(currentpos.y =< trees[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(xdif < 0){
+        reverse();
+        while(currentpos.y >= trees[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(ydif > 0){
+        left();
+        while(currentpos.x =< trees[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(ydif < 0){
+        right();
+        while(currentpos.x >= trees[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      
+      //GRAB BEADS CODE HERE!!!
+
+      xdif = cups[i].x - currentpos.x;
+      ydif = cups[i].y - currentpos.y;
+    }
   }
 
 }
