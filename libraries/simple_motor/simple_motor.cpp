@@ -45,8 +45,8 @@
 
 const int raiseSteps = 0;  // number of steps to raise arm. unkown as of yet
 const int extendSteps = 0; // number of steps to extend leadscrew. unknown as of yet
-const int clawOpenDegrees = 45; // DEFINITELY WRONG. TEST!
-const int clawClosedDegrees = 0; // DEFINITELY WRONG. TEST!
+const int clawOpenDegrees = 45; // Tested
+const int clawClosedDegrees = 105; // Tested
 
 Adafruit_MotorShield AFMS = Adafruit_MotorShield();
 Adafruit_DCMotor *M1 = AFMS.getMotor(1);

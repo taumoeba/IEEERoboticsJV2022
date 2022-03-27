@@ -38,7 +38,7 @@ void setup() {
   //drive.initialize();
   //arm.initialize();
 
-
+  tempGrabber.attach(9);
   pixy.init();
   pixy.changeProg("color_connected_components");
 
@@ -189,93 +189,118 @@ void loop() {
     ***************************************************/
   if(Serial.available()) {
     incomingByte = Serial.read();
+    Serial.println(incomingByte);
     switch(incomingByte) {
       case 'w':
       case'W':
+        Serial.println("Forward");
         drive.allStop();
         drive.forward();
         break;
       case 'a':
       case 'A':
+        Serial.println("LEft");
         drive.allStop();
         drive.left();
         break;
       case 's':
       case 'S':
+        Serial.println("Reverse");
         drive.allStop();
         drive.reverse();
         break;
       case 'd':
       case 'D':
+        Serial.println("Right");
         drive.allStop();
         drive.right();
         break;
       case 'n':
+        Serial.println("Counter");
         arm.counterSusan(1);
         break;
       case 'N':
+        Serial.println("Counter");
         arm.counterSusan(10);
         break;
       case 'm':
+        Serial.println("Clockwise");
         arm.clockwiseSusan(1);
         break;
       case 'M':
+        Serial.println("Clockwise");
         arm.clockwiseSusan(10);
         break;
       case 't':
+        Serial.println("Raise");
         arm.raiseArm(1);
         break;
       case 'T':
+        Serial.println("Raise");
         arm.raiseArm(10);
         break;
       case 'g':
+        Serial.println("Lower");
         arm.lowerArm(1);
         break;
       case 'G':
+        Serial.println("Lower");
         arm.lowerArm(10);
         break;
       case 'y':
+        Serial.println("Grabber");
         grabberPosition += 10;
         arm.setGrabber(grabberPosition);
         break;
       case 'Y':
+        Serial.println("Grabber");
         grabberPosition = 180;
         arm.setGrabber(grabberPosition);
         break;
       case 'h':
+        Serial.println("Grabber");
         grabberPosition -= 10;
         arm.setGrabber(grabberPosition);
         break;
       case 'H':
+        Serial.println("Grabber");
         grabberPosition = 30;
         arm.setGrabber(grabberPosition);
         break;
       case 'u':
+        Serial.println("Screw");
         arm.extendScrew(1);
         break;
       case 'U':
+        Serial.println("Screw");
         arm.extendScrew(10);
         break;
       case 'j':
+        Serial.println("Screw");
         arm.retractScrew(1);
         break;
       case 'J':
+        Serial.println("Screw");
         arm.retractScrew(10);
         break;
       case 'i':
       case 'I':
+        Serial.println("Claw");
         arm.openClaw();
         break;
       case 'k':
       case 'K':
+        Serial.println("Claw");
         arm.closeClaw();
         break;
       case 'q':
       case 'Q':
+        Serial.println("Stop");
         drive.allStop();
         break;
       case 'z':
       case 'Z':
+        Serial.println("Abort");
         drive.allStop();
         arm.setGrabber(45);
         pixyDebug = true;
