@@ -305,6 +305,7 @@ void loop() {
 
     //are going to turn to face top wall
     turnSusan(0);
+    currentpos.looking = right;
 
     left();
     while(currentpos.x =< 90                         ){  //the turning point of the robot
@@ -319,6 +320,7 @@ void loop() {
 
     turnSusan(0);
     turnSusan(0);
+    currentpos.looking = left;
 
     right();
     while(currentpos.x > 24){  //the turning point of the robot
@@ -331,7 +333,8 @@ void loop() {
     }
     allStop();
 
-    turnSusan(0);
+    turnSusan(1);
+    currentpos.looking = down;
 
     reverse();
     while(currentpos.y > 6){  //the turning point of the robot

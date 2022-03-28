@@ -33,16 +33,20 @@ initial center of the robot 24,6
 
 */
 
-#define cupdistance 12  	//this is currently in inches, can change later
-#define fromcenter 5.75		//distance sensors are from center of robot
+//#define cupdistance 12  	//this is currently in inches, can change later
+//#define fromcenter 5.75		//distance sensors are from center of robot
 
 
 #define tocords(steps) (double)(steps/2) //experimentation will make this more precise
 #define toinches(millimeters) (double)(millimeters*0.0393701) //current assumption is that distance sensors read mm and i'm using inches
 
+enum direction{up, down, left, right};    //using the same names as the moter library names
+
 struct position{
     double x;
     double y;
+	direction looking;	//for robot, direction is where arm is pointing
+						//for trees and cups, it is where the arm should be to interact with it
 };
 
 
@@ -54,7 +58,6 @@ char treeindex;
 position currentpos;
 
 
-enum direction{up, down, left, right};    //using the same names as the moter library names
 direction pixy = left;    //initialize to left, where it should be pointed at.
                         //change this inside of susan functions
 
