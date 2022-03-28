@@ -1,6 +1,8 @@
-
 #include "Adafruit_VL53L0X.h"
 #include <Pixy2.h>
+#include "simple_motor.h"
+#include "coord_system.h"
+#include <Adafruit_MotorShield.h>
 
 Pixy2 pixy;
 
@@ -18,3 +20,6 @@ bool allClear = true; // set to false in final version, true for testing
 bool allClearOld = false;
 
 bool foundCup();    //to be written with pixy camera
+
+driveMotors drive = driveMotors();
+armMotors arm = armMotors();

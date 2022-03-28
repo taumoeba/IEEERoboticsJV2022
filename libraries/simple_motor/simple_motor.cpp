@@ -191,7 +191,7 @@ void armMotors::counterSusan(int steps) {
 	turnStepper.move(-steps);
 }
 
-void turnSusan(bool dir){	// 0 = c, 1 = cc
+void armMotors::turnSusan(bool dir){	// 0 = c, 1 = cc
 	if(dir)
 		counterSusan(QUARTER_TURN);
 	else

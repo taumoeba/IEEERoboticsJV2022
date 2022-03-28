@@ -1,5 +1,3 @@
-#include <Adafruit_MotorShield.h>
-
 // Currently configured for testing
 // (also yes I know this is poorly written)
 
@@ -20,17 +18,12 @@
  ******************************************************************************************/
 
 /* TODO:
- * - implement classes for motor and arm libaries
  * - build wrapper libraries for distance sensors, camera
  * - Write out main control algorithm
  * - Verify all motor numbers, directions, step counts, etc.
  */
 
-#include "simple_motor.h"
-#include "coord_system.h"
 #include "MainRobotControl.h"
-#include "Adafruit_VL53L0X.h"
-#include <Pixy2.h>
 
 
 void setup() {
@@ -68,48 +61,6 @@ void setup() {
   digitalWrite(XSHUT4, HIGH);
   lox4.begin(0x33);
 }
-
-/*******************************************
- * FUNCTION DEFINITIONS -- MOVE TO LIBRARY
- *******************************************/
-/*
- void distSenseSetup() {
-  VL53L0X_RangingMeasurementData_t measure1;
-  VL53L0X_RangingMeasurementData_t measure2;
-  VL53L0X_RangingMeasurementData_t measure3;
-  VL53L0X_RangingMeasurementData_t measure4;
-
-  lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
-  lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
-  lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
-  lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
- }
-
- void printRanges() {
-  if (measure1.RangeStatus != 4) {  // phase failures have incorrect data
-    Serial.print("Distance 1 (mm): "); Serial.println(measure1.RangeMilliMeter);
-  } else {
-    Serial.println(" sensor 1 out of range ");
-  }
-  if (measure2.RangeStatus != 4) {  // phase failures have incorrect data
-    Serial.print("Distance 2 (mm): "); Serial.println(measure2.RangeMilliMeter);
-  } else {
-    Serial.println(" sensor 2 out of range ");
-  }
-  
-  if (measure3.RangeStatus != 4) {  // phase failures have incorrect data
-    Serial.print("Distance 1 (mm): "); Serial.println(measure3.RangeMilliMeter);
-  } else {
-    Serial.println(" sensor 3 out of range ");
-  }
-  
-  if (measure4.RangeStatus != 4) {  // phase failures have incorrect data
-    Serial.print("Distance 1 (mm): "); Serial.println(measure4.RangeMilliMeter);
-  } else {
-    Serial.println(" sensor 4 out of range ");
-  }
- }
- */
 
 /*
   The robot has two modes, cup hunt/traverse board and grabbing beads/placing in cups
@@ -159,17 +110,11 @@ void loop() {
   // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
   if(measure1.RangeMilliMeter >= 450) { //change to RangeInches
       allClear = true;
-      setSpeed(1,100);
-      setSpeed(2,100);
-      setSpeed(3,100);
-      setSpeed(4,100);
+      drive.setSpeed(100);
     }
     else if(measure1.RangeMilliMeter >= 250) {
       allClear = true;
-      setSpeed(1,60);
-      setSpeed(2,60);
-      setSpeed(3,60);
-      setSpeed(4,60);
+      drive.setSpeed(60);
     }
     else if(measure1.RangeMilliMeter < 250) {
       allClear = false;
@@ -205,85 +150,12 @@ void loop() {
    // only drive if sensors reporting all clear
    if(allClear != allClearOld) {
     if(allClear) {
-      driveUp();
+      drive.forward();
     } else {
-      allStop();
+      drive.allStop();
     }
     allClearOld = allClear;
    }
-  /*  // Testing all motor functions
-
-
-  // Main motors
-  setSpeed(1,100);
-  setSpeed(2,100);
-  setSpeed(3,100);
-  setSpeed(4,100);
-  
-  driveUp();
-  delay(6000);
-  driveDown();
-  delay(6000);
-  allStop();
-  delay(3000);
-  driveRight();
-  delay(1500);
-  driveLeft();
-  delay(1500);
-  allStop();
-  
-  
-  driveRight();
-  delay(1500);
-  driveLeft();
-  delay(1500);
-  allStop();
-  
-  setSpeed(1,120);
-  setSpeed(2,120);
-  //setSpeed(3,120);
-  setSpeed(4,120);
-  driveUp();
-  delay(1000);
-  stopMotor(1);
-  //delay(1000);
-  //stopMotor(3);
-  delay(1000);
-  driveRight();
-  delay(1000);
-  stopMotor(2);
-  
-  delay(1000);
-  stopMotor(4);
-  delay(1000);
-  driveDown();
-  delay(2000);
-  allStop();
-  
-  // grabber arm
-  delay(5000);
-  clockwiseSusan(100);
-  delay(2000);
-  counterSusan(100);
-  delay(2000);
-  extendArm(50);
-  delay(2000);
-  retractArm(50);
-  delay(2000);
-  raiseGrabber();
-  delay(2000);
-  lowerGrabber();
-  delay(2000);
-  extendScrew(100);
-  delay(2000);
-  retractScrew(100);
-  delay(2000);
-  extendSolenoid();
-  delay(2000);
-  retractSolenoid();
-  delay(6000);
-  */
-  delay(50);
 
   /************************************************
    * ROBOT STATE CONTROL
@@ -292,57 +164,57 @@ void loop() {
   if(!foundcups){
     //start here, this is where we go through the board
     //we should be foward facing
-    foward();
+    drive.foward();
     while(currentpos.y =< 24){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundCup()){
-        allStop();
+        drive.allStop();
           //do cuplog stuff here
-        foward(); //continue moving
+        drive.foward(); //continue moving
       }
     }
-    allStop();
+    drive.allStop();
 
     //are going to turn to face top wall
-    turnSusan(0);
+    arm.turnSusan(0);
 
     left();
     while(currentpos.x =< 90                         ){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundCup()){
-        allStop();
+        drive.allStop();
           //do cuplog stuff here
-        left(); //continue moving
+        drive.left(); //continue moving
       }
     }
-    allStop();
+    drive.allStop();
 
-    turnSusan(0);
-    turnSusan(0);
+    arm.turnSusan(0);
+    arm.turnSusan(0);
 
-    right();
+    drive.right();
     while(currentpos.x > 24){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundCup()){
-        allStop();
+        drive.allStop();
           //do cuplog stuff here
-        right(); //continue moving
+        drive.right(); //continue moving
       }
     }
-    allStop();
+    drive.allStop();
 
-    turnSusan(0);
+    arm.turnSusan(0);
 
-    reverse();
+    drive.reverse();
     while(currentpos.y > 6){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundCup()){
-        allStop();
+        drive.allStop();
           //do cuplog stuff here
-        reverse(); //continue moving
+        drive.reverse(); //continue moving
       }
     }
-    allStop();
+    drive.allStop();
     foundcups = 1;
   }
   else{
@@ -360,57 +232,57 @@ void loop() {
 
       //check to see if we need to move in two directions both ways
       if(xdif > 0 && ydif > 0){
-        foward();
+        drive.foward();
         while(currentpos.y =< trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
         allStop();
-        left();
+        drive.left();
         while(currentpos.x =< trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(xdif < 0 && ydif < 0){
-        right();
+        drive.right();
         while(currentpos.x >= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
-        reverse();
+        drive.allStop();
+        drive.reverse();
         while(currentpos.y >= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       //single directional movement
       else if(xdif > 0){
-        foward();
+        drive.foward();
         while(currentpos.y =< trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(xdif < 0){
-        reverse();
+        drive.reverse();
         while(currentpos.y >= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(ydif > 0){
-        left();
+        drive.left();
         while(currentpos.x =< trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(ydif < 0){
-        right();
+        drive.right();
         while(currentpos.x >= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       
       //GRAB BEADS CODE HERE!!!
