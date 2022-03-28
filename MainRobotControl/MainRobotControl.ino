@@ -5,7 +5,7 @@
  * Main program for LU JV IEEE Robotics 2022
  * Written by Ben Powell and Stephen Fulton
  * April 2022
- * 
+ *
  * Microcontroller: Arduino Mega 2560
  * Components List:
  * - Adafruit Motor Control Shield v2.3
@@ -13,7 +13,7 @@
  * - 3x Stepper Motor
  * - 1x Servo Motor
  * - Pixy2 Smart Vision Sensor
- * 
+ *
  * Reference schematic.png for connection details
  ******************************************************************************************/
 
@@ -83,24 +83,13 @@ void loop() {
   lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
   lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
 
-  // print out distances to serial
-  if (measure1.RangeStatus != 4) {  // phase failures have incorrect data
-    Serial.print("Distance 1 (mm): "); Serial.println(measure1.RangeMilliMeter);
-  } else {
-    Serial.println(" sensor 1 out of range ");
-  }
-  if (measure2.RangeStatus != 4) {  // phase failures have incorrect data
-    Serial.print("Distance 2 (mm): "); Serial.println(measure2.RangeMilliMeter);
-  } else {
-    Serial.println(" sensor 2 out of range ");
-  }
-  
+
   if (measure3.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print("Distance 1 (mm): "); Serial.println(measure3.RangeMilliMeter);
   } else {
     Serial.println(" sensor 3 out of range ");
   }
-  
+
   if (measure4.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print("Distance 1 (mm): "); Serial.println(measure4.RangeMilliMeter);
   } else {
@@ -125,7 +114,7 @@ void loop() {
    ***********************************************/
 
    pixy.ccc.getBlocks();
-   
+
    // If there are detected blocks, stop driving
    if (pixy.ccc.numBlocks)
    {
@@ -176,7 +165,8 @@ void loop() {
     drive.allStop();
 
     //are going to turn to face top wall
-    arm.turnSusan(0);
+    turnSusan(0);
+    currentpos.looking = right;
 
     left();
     while(currentpos.x =< 90                         ){  //the turning point of the robot
@@ -189,8 +179,9 @@ void loop() {
     }
     drive.allStop();
 
-    arm.turnSusan(0);
-    arm.turnSusan(0);
+    turnSusan(0);
+    turnSusan(0);
+    currentpos.looking = left;
 
     drive.right();
     while(currentpos.x > 24){  //the turning point of the robot
@@ -203,7 +194,8 @@ void loop() {
     }
     drive.allStop();
 
-    arm.turnSusan(0);
+    turnSusan(1);
+    currentpos.looking = down;
 
     drive.reverse();
     while(currentpos.y > 6){  //the turning point of the robot
@@ -220,12 +212,12 @@ void loop() {
   else{
     //this is where we will grab the beads off the trees and put into the cups,
     //we will probably want to loop through this multiple times to grab all beads, maybe 4 times at most?
-    
+
     //if in short part, move up/down, else move left right
     for(int i = 0; i < cupindex; ++i){
       //we need to go to the first tree
       treeindex = i % 2; //in case there is more than 2 cups, make sure that i is either 0 or 1
-      
+
       //we need to figure out where we are on the board and where we are in relation to the trees
       int xdif = trees[treeindex].x - currentpos.x;
       int ydif = trees[treeindex].y - currentpos.y;
@@ -284,11 +276,72 @@ void loop() {
         }
         drive.allStop();
       }
-      
+
       //GRAB BEADS CODE HERE!!!
 
       xdif = cups[i].x - currentpos.x;
       ydif = cups[i].y - currentpos.y;
+
+      //now need to get to cups
+
+      if(xdif > 0 && ydif > 0){
+        foward();
+        while(currentpos.y =< cups[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+        left();
+        while(currentpos.x =< cups[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(xdif < 0 && ydif < 0){
+        right();
+        while(currentpos.x >= cups[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+        reverse();
+        while(currentpos.y >= cups[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      //single directional movement
+      else if(xdif > 0){
+        foward();
+        while(currentpos.y =< cups[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(xdif < 0){
+        reverse();
+        while(currentpos.y >= cups[i].y){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(ydif > 0){
+        left();
+        while(currentpos.x =< cups[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+      else if(ydif < 0){
+        right();
+        while(currentpos.x >= cups[i].x){  //the turning point of the robot
+          currentPosLog();  //update position
+        }
+        allStop();
+      }
+
+      //BEAD DROP CODE
+
+      //once we loop, we will go back to the first tree to grab
+      //beads that we have missed.
     }
   }
 

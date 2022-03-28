@@ -5,8 +5,10 @@
 void setup(){
     trees[0].x = 12;
     trees[0].y = 7;
+    trees[0].looking = left;
     trees[1].x = 75;
     trees[1].y = 36;
+    trees[1].looking = up;
 
     //initial position of the robot
     currentpos.x = 24;
@@ -20,22 +22,22 @@ void logcup(){
     switch(pixy){
         case up:
             cups[cupindex] = currentpos;
-            cups[cupindex].y += cupdistance;
+            cups[cupindex].looking = up;
             ++cupindex;
             break;
         case down:
             cups[cupindex] = currentpos;
-            cups[cupindex].y -= cupdistance;
+            cups[cupindex].looking = down;
             ++cupindex;
             break;
         case left:
             cups[cupindex] = currentpos;
-            cups[cupindex].x -= cupdistance;
+            cups[cupindex].looking = left;
             ++cupindex;
             break;
         case right:
             cups[cupindex] = currentpos;
-            cups[cupindex].x += cupdistance;
+            cups[cupindex].looking = right;
             ++cupindex;
             break;
     }
@@ -58,4 +60,5 @@ void currentPosLog(){
 
     currentpos.x = left;
     currentpos.y = 48 - up;
+    //looking must be logged outside of code since the arm can look in any direction
 }
