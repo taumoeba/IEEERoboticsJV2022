@@ -165,7 +165,7 @@ void loop() {
     drive.allStop();
 
     //are going to turn to face top wall
-    turnSusan(0);
+    arm.turnSusan(0);
     currentpos.looking = right;
 
     left();
@@ -179,8 +179,8 @@ void loop() {
     }
     drive.allStop();
 
-    turnSusan(0);
-    turnSusan(0);
+    arm.turnSusan(0);
+    arm.turnSusan(0);
     currentpos.looking = left;
 
     drive.right();
@@ -194,7 +194,7 @@ void loop() {
     }
     drive.allStop();
 
-    turnSusan(1);
+    arm.turnSusan(1);
     currentpos.looking = down;
 
     drive.reverse();
@@ -228,7 +228,7 @@ void loop() {
         while(currentpos.y =< trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
         drive.left();
         while(currentpos.x =< trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
@@ -285,57 +285,57 @@ void loop() {
       //now need to get to cups
 
       if(xdif > 0 && ydif > 0){
-        foward();
+        drive.foward();
         while(currentpos.y =< cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
-        left();
+        drive.allStop();
+        drive.left();
         while(currentpos.x =< cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(xdif < 0 && ydif < 0){
-        right();
+        drive.right();
         while(currentpos.x >= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
-        reverse();
+        drive.allStop();
+        drive.reverse();
         while(currentpos.y >= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       //single directional movement
       else if(xdif > 0){
-        foward();
+        drive.foward();
         while(currentpos.y =< cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(xdif < 0){
-        reverse();
+        drive.reverse();
         while(currentpos.y >= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(ydif > 0){
-        left();
+        drive.left();
         while(currentpos.x =< cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
       else if(ydif < 0){
-        right();
+        drive.right();
         while(currentpos.x >= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        allStop();
+        drive.allStop();
       }
 
       //BEAD DROP CODE
