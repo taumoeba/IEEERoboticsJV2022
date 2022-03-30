@@ -32,6 +32,8 @@ void setup() {
   pixy.init();
   pixy.changeProg("color_connected_components");
 
+  coordSetup();
+
   pinMode(XSHUT1, OUTPUT);
   pinMode(XSHUT2, OUTPUT);
   pinMode(XSHUT3, OUTPUT);

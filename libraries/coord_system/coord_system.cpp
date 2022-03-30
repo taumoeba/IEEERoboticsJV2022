@@ -2,7 +2,7 @@
 #include "MainRobotControl.h"
 
 // this is the code for how the robot moves around and logs the position of the cups
-void setup(){
+void coordSetup(){
     trees[0].x = 12;
     trees[0].y = 7;
     trees[0].looking = left;

@@ -36,6 +36,18 @@ initial center of the robot 24,6
 #ifndef COORD_SYSTEM_H
 #define COORD_SYSTEM_H
 
+#include "Adafruit_VL53L0X.h"
+
+Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
+
+VL53L0X_RangingMeasurementData_t measure1;
+VL53L0X_RangingMeasurementData_t measure2;
+VL53L0X_RangingMeasurementData_t measure3;
+VL53L0X_RangingMeasurementData_t measure4;
+
 #define tocords(steps) (double)(steps/2) //experimentation will make this more precise
 #define toinches(millimeters) (double)(millimeters*0.0393701) //current assumption is that distance sensors read mm and i'm using inches
 
@@ -65,5 +77,6 @@ direction pixyDir = left;    //initialize to left, where it should be pointed at
 
 void logcup();
 void currentPosLog();
+void coordSetup();
 
 #endif
