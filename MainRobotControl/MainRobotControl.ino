@@ -28,7 +28,6 @@
 
 void setup() {
   Serial.begin(115200);
-  initializeMotors();
 
   pixy.init();
   pixy.changeProg("color_connected_components");
@@ -153,13 +152,13 @@ void loop() {
   if(!foundcups){
     //start here, this is where we go through the board
     //we should be foward facing
-    drive.foward();
-    while(currentpos.y =< 24){  //the turning point of the robot
+    drive.forward();
+    while(currentpos.y <= 24){  //the turning point of the robot
       currentPosLog();  //update position
-      if(foundCup()){
+      if(foundcups){
         drive.allStop();
           //do cuplog stuff here
-        drive.foward(); //continue moving
+        drive.forward(); //continue moving
       }
     }
     drive.allStop();
@@ -168,10 +167,10 @@ void loop() {
     arm.turnSusan(0);
     currentpos.looking = right;
 
-    left();
-    while(currentpos.x =< 90                         ){  //the turning point of the robot
+    drive.left();
+    while(currentpos.x <= 90                         ){  //the turning point of the robot
       currentPosLog();  //update position
-      if(foundCup()){
+      if(foundcups){
         drive.allStop();
           //do cuplog stuff here
         drive.left(); //continue moving
@@ -186,7 +185,7 @@ void loop() {
     drive.right();
     while(currentpos.x > 24){  //the turning point of the robot
       currentPosLog();  //update position
-      if(foundCup()){
+      if(foundcups){
         drive.allStop();
           //do cuplog stuff here
         drive.right(); //continue moving
@@ -200,7 +199,7 @@ void loop() {
     drive.reverse();
     while(currentpos.y > 6){  //the turning point of the robot
       currentPosLog();  //update position
-      if(foundCup()){
+      if(foundcups){
         drive.allStop();
           //do cuplog stuff here
         drive.reverse(); //continue moving
@@ -224,13 +223,13 @@ void loop() {
 
       //check to see if we need to move in two directions both ways
       if(xdif > 0 && ydif > 0){
-        drive.foward();
-        while(currentpos.y =< trees[i].y){  //the turning point of the robot
+        drive.forward();
+        while(currentpos.y <= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
         drive.left();
-        while(currentpos.x =< trees[i].x){  //the turning point of the robot
+        while(currentpos.x <= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
@@ -249,8 +248,8 @@ void loop() {
       }
       //single directional movement
       else if(xdif > 0){
-        drive.foward();
-        while(currentpos.y =< trees[i].y){  //the turning point of the robot
+        drive.forward();
+        while(currentpos.y <= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
@@ -264,7 +263,7 @@ void loop() {
       }
       else if(ydif > 0){
         drive.left();
-        while(currentpos.x =< trees[i].x){  //the turning point of the robot
+        while(currentpos.x <= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
@@ -285,13 +284,13 @@ void loop() {
       //now need to get to cups
 
       if(xdif > 0 && ydif > 0){
-        drive.foward();
-        while(currentpos.y =< cups[i].y){  //the turning point of the robot
+        drive.forward();
+        while(currentpos.y <= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
         drive.left();
-        while(currentpos.x =< cups[i].x){  //the turning point of the robot
+        while(currentpos.x <= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
@@ -310,8 +309,8 @@ void loop() {
       }
       //single directional movement
       else if(xdif > 0){
-        drive.foward();
-        while(currentpos.y =< cups[i].y){  //the turning point of the robot
+        drive.forward();
+        while(currentpos.y <= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
@@ -325,7 +324,7 @@ void loop() {
       }
       else if(ydif > 0){
         drive.left();
-        while(currentpos.x =< cups[i].x){  //the turning point of the robot
+        while(currentpos.x <= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
         drive.allStop();
