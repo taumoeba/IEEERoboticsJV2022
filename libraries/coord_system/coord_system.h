@@ -79,4 +79,6 @@ void logcup();
 void currentPosLog();
 void coordSetup();
 
+position precups[7];
+
 #endif
