@@ -17,18 +17,12 @@
  * Reference schematic.png for connection details
  ******************************************************************************************/
 
-/* TODO:
- * - build wrapper libraries for distance sensors, camera
- * - Write out main control algorithm
- * - Verify all motor numbers, directions, step counts, etc.
- */
-
 //#include "MainRobotControl.h"
 /********************************************************************************************
  * HEADER FILE CONTENTS (merged into main program to fix errors)
  *******************************************************************************************/
- 
-//simple_motor.h
+
+//***************simple_motor.h**************************
 #include <Arduino.h>
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
@@ -57,7 +51,7 @@ public:
   void turnSusan(bool dir);
   void raiseArm(int steps);
   void lowerArm(int steps);
-  void setGrabber(int steps);
+  void setGrabber(int degrees); // sets rotation angle of arm rotator servo
   void extendScrew(int steps);
   void retractScrew(int steps);
   void openClaw();
@@ -238,6 +232,7 @@ void armMotors::closeClaw() {
 //coord_system.h
 #include "Adafruit_VL53L0X.h"
 
+// distance sensor setup
 Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
 Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
 Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
@@ -411,7 +406,7 @@ void setup() {
   pinMode(XSHUT3, OUTPUT);
   pinMode(XSHUT4, OUTPUT);
 
-  // reset TOF sensors
+  // reset distance sensors
   digitalWrite(XSHUT1, LOW);
   digitalWrite(XSHUT2, LOW);
   digitalWrite(XSHUT3, LOW);
@@ -492,9 +487,9 @@ void loop() {
    // If there are detected blocks, stop driving
    if (pixy.ccc.numBlocks)
    {
-    Serial.println("********CUP DETECTED*****");
-    allClear = false; // stop driving
-    /*
+    //Serial.println("********CUP DETECTED*****");
+    //allClear = false; // stop driving
+
      Serial.print("Detected ");
      Serial.println(pixy.ccc.numBlocks);
      for (int i=0; i<pixy.ccc.numBlocks; i++)
@@ -504,7 +499,7 @@ void loop() {
        Serial.print(": ");
        pixy.ccc.blocks[i].print();
      }
-     */
+
    }
 
   /******************************************
@@ -546,7 +541,7 @@ void loop() {
     currentpos.looking = right;
 
     drive.left();
-    while(currentpos.x <= 90                         ){  //the turning point of the robot
+    while(currentpos.x <= 90){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundcups){
         drive.allStop();
