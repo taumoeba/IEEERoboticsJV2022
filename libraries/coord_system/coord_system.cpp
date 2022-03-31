@@ -1,6 +1,18 @@
 #include "coord_system.h"
-#include "MainRobotControl.h"
+//#include "MainRobotControl.h"
 
+#define tocords(steps) (double)(steps/2) //experimentation will make this more precise
+#define toinches(millimeters) (double)(millimeters*0.0393701) //current assumption is that distance sensors read mm and i'm using inches
+
+const int cupdistance = 12;
+const int fromcenter = 5.75;
+direction pixyDir = left;
+/*
+lox1 = Adafruit_VL53L0X();
+lox2 = Adafruit_VL53L0X();
+lox3 = Adafruit_VL53L0X();
+lox4 = Adafruit_VL53L0X();
+*/
 // this is the code for how the robot moves around and logs the position of the cups
 void coordSetup(){
     //these are not where these objects ARE, but where the ROBOT NEEDS TO BE
@@ -14,26 +26,26 @@ void coordSetup(){
 
     precups[0].x = 24;
     precups[0].y = 7;
-    precups[0].looking left;
+    precups[0].looking = left;
     precups[1].x = 24;
     precups[1].y = 27;
-    precups[1].looking left;
+    precups[1].looking = left;
     precups[2].x = 24;
     precups[2].y = 24;
-    precups[2].looking up;
+    precups[2].looking = up;
     precups[3].x = 48;
     precups[3].y = 24;
-    precups[3].looking up;
+    precups[3].looking = up;
     precups[4].x = 84;
     precups[4].y = 24;
-    precups[4].looking up;
+    precups[4].looking = up;
     precups[5].x = 48;
     precups[5].y = 24;
-    precups[5].looking down;
+    precups[5].looking = down;
     precups[6].x = 84;
     precups[6].y = 24;
-    precups[6].looking down;
-    
+    precups[6].looking = down;
+
 
     //initial position of the robot
     currentpos.x = 24;
@@ -49,7 +61,7 @@ void logcup(){
     newcup.looking = pixyDir;
     switch(newcup.looking){
         case left:
-            if(abs(newcup.y - precups[0].y) < abs(newcup.y - precups[1])){
+            if(abs(newcup.y - precups[0].y) < abs(newcup.y - precups[1].y)){
                 cups[cupindex++] = precups[0];
             }
             else{
@@ -57,18 +69,18 @@ void logcup(){
             }
             break;
         case up:
-            if(abs(newcup.x - precups[2]) < abs(newcup.x - precups[3] && abs(newcup.x - precups[2]) < abs(newcup.x - precups[4]))){
+            if(abs(newcup.x - precups[2].x) < abs(newcup.x - precups[3].x && abs(newcup.x - precups[2].x) < abs(newcup.x - precups[4].x))){
                 cups[cupindex++] = precups[2];
             }
-            else if(abs(newcup.x - precups[3]) < abs(newcup.x - precups[2] && abs(newcup.x - precups[3]) < abs(newcup.x - precups[4]))){
+            else if(abs(newcup.x - precups[3].x) < abs(newcup.x - precups[2].x && abs(newcup.x - precups[3].x) < abs(newcup.x - precups[4].x))){
                 cups[cupindex++] = precups[3];
             }
             else{
-                cups[cupindex++] = precusp[4];
+                cups[cupindex++] = precups[4];
             }
             break;
         case down:
-            if(abs(newcup.x - precups[5]) < abs(newcup.x - precups[6])){
+            if(abs(newcup.x - precups[5].x) < abs(newcup.x - precups[6].x)){
                 cups[cupindex++] = precups[5];
             }
             else{

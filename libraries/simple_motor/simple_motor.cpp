@@ -43,6 +43,12 @@
 #define CLAW_SERVO_PIN 10
 #define SOLENOID_PIN 12
 
+//defining arm lengths:
+#define ARM_PIVOT_FULL_LENGHT  200    //this should raise us to a 90degree angle
+#define ARM_PIVOT_HALF_LENGTH  100    //45degree
+#define ARM_EXTEND_LENGTH      500    //this raises the arm up to tree height
+#define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw
+
 //number of steps to get a 90degree turn from susan
 #define QUARTER_TURN 450	//testing needed to get precise amount
 

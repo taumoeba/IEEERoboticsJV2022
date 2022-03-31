@@ -38,12 +38,6 @@
 #include "A4988.h"
 #include "BasicStepperDriver.h"
 
-//defining arm lengths:
-#define ARM_PIVOT_FULL_LENGHT  200    //this should raise us to a 90degree angle
-#define ARM_PIVOT_HALF_LENGTH  100    //45degree
-#define ARM_EXTEND_LENGTH      500    //this raises the arm up to tree height
-#define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw
-
 class driveMotors {
 public:
   driveMotors();
