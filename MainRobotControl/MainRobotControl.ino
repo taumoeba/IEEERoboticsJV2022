@@ -152,7 +152,7 @@ void loop() {
    ***********************************************/
 
   //we must first raise the arm so we can rotate
-  raiseArm(10);
+  arm.raiseArm(10);
 
   if(!foundcups){
     //start here, this is where we go through the board
