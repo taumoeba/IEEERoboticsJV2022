@@ -74,13 +74,13 @@ Servo clawServo;
 // distance sensor setup
 Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
 Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
-Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
-Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
+//Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
+//Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
 
 VL53L0X_RangingMeasurementData_t measure1;
 VL53L0X_RangingMeasurementData_t measure2;
-VL53L0X_RangingMeasurementData_t measure3;
-VL53L0X_RangingMeasurementData_t measure4;
+//VL53L0X_RangingMeasurementData_t measure3;
+//VL53L0X_RangingMeasurementData_t measure4;
 
 void allStop() {
   M1->run(RELEASE);
@@ -146,7 +146,7 @@ void setMotorSpeed(int speed) {
 
 // To set servo:
 // servoName.write(degrees);
-
+/*
 enum direction{up, down, left, right};    //using the same names as the moter library names
 
 struct position{
@@ -154,7 +154,7 @@ struct position{
     double y;
   direction looking;  //for robot, direction is where arm is pointing
             //for trees and cups, it is where the arm should be to interact with it
-};
+};//*/
 /*
 position cups[4];   //in case there are more than two cups
 char cupindex;
@@ -323,15 +323,15 @@ void setup() {
 
   // set sensor addresses one-by-one
   digitalWrite(XSHUT2, LOW);
-  digitalWrite(XSHUT3, LOW);
-  digitalWrite(XSHUT4, LOW);
+  //digitalWrite(XSHUT3, LOW);
+  //digitalWrite(XSHUT4, LOW);
   lox1.begin(0x30);
   digitalWrite(XSHUT2, HIGH);
-  lox2.begin(0x31);
+  lox2.begin(0x31);/*
   digitalWrite(XSHUT3, HIGH);
   lox3.begin(0x32);
   digitalWrite(XSHUT4, HIGH);
-  lox4.begin(0x33);
+  lox4.begin(0x33);//*/
 }
 
 /*
@@ -353,8 +353,8 @@ void loop() {
   */
   lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
   lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
-  lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
-  lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
+  //lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
+  //lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
 /*
   if(distDebug) {
     if (measure3.RangeStatus != 4) {  // phase failures have incorrect data
