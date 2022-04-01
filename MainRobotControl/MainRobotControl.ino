@@ -358,8 +358,8 @@ void currentPosLog(){
     //all of these can change to satisfy overall design
 
     //up and left are garunteed to be seen
-    double up = measure1.RangeMilliMeter/25.4 + fromcenter;
-    double left = measure3.RangeMilliMeter/25.4 + fromcenter;
+    double up = measure1.RangeMilliMeter/25.4 + fromcenter + 1.5; //offset by the size of wood
+    double left = measure3.RangeMilliMeter/25.4 + fromcenter + 1.5;
 
     //there might not be a visible wall for these sensors,
     //use these later on for double checking
