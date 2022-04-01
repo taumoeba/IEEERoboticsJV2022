@@ -1,5 +1,4 @@
 // Currently configured for testing
-// (also yes I know this is poorly written)
 
 /*******************************************************************************************
  * Main program for LU JV IEEE Robotics 2022
@@ -18,9 +17,6 @@
  ******************************************************************************************/
 
 //#include "MainRobotControl.h"
-/********************************************************************************************
- * HEADER FILE CONTENTS (merged into main program to fix errors)
- *******************************************************************************************/
 
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
@@ -29,21 +25,18 @@
 
 #define MOTOR_STEPS 200
 #define RPM 120
-#define DIR1 14
-#define STEP1 15
-#define DIR2 16
-#define STEP2 17
-#define GRABBER_SERVO_PIN 9
-#define CLAW_SERVO_PIN 10
+#define GRABBER_SERVO_PIN 10
+#define CLAW_SERVO_PIN 9
 #define OUT1 5
 #define OUT2 6
 #define D1 13
 
 //defining arm lengths:
-#define ARM_PIVOT_FULL_LENGHT  75    //this should raise us to a 90degree angle
-#define ARM_PIVOT_HALF_LENGTH  50    //45degree
-#define ARM_EXTEND_LENGTH      500    //this raises the arm up to tree height
-#define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw
+#define ARM_EXTEND_LENGTH      500    //this raises the arm up to tree height (untested)
+#define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw (untested)
+#define ROTATEY_DOWN 10
+#define ROTATEY_UP 100
+#define ROTATEY_CUP 40
 
 //number of steps to get a 90degree turn from susan
 #define QUARTER_TURN 450  //testing needed to get precise amount
@@ -53,8 +46,6 @@
 #define XSHUT3 11
 #define XSHUT4 12
 
-#define raiseSteps 0  // number of steps to raise arm. unkown as of yet
-#define extendSteps 0 // number of steps to extend leadscrew. unknown as of yet
 #define clawOpenDegrees 45 // Tested
 #define clawClosedDegrees 105 // Tested
 
@@ -74,13 +65,13 @@ Servo clawServo;
 // distance sensor setup
 Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
 Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
-//Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
-//Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
+Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
 
 VL53L0X_RangingMeasurementData_t measure1;
 VL53L0X_RangingMeasurementData_t measure2;
-//VL53L0X_RangingMeasurementData_t measure3;
-//VL53L0X_RangingMeasurementData_t measure4;
+VL53L0X_RangingMeasurementData_t measure3;
+VL53L0X_RangingMeasurementData_t measure4;
 
 void allStop() {
   M1->run(RELEASE);
@@ -146,7 +137,7 @@ void setMotorSpeed(int speed) {
 
 // To set servo:
 // servoName.write(degrees);
-/*
+
 enum direction{up, down, left, right};    //using the same names as the moter library names
 
 struct position{
@@ -154,8 +145,8 @@ struct position{
     double y;
   direction looking;  //for robot, direction is where arm is pointing
             //for trees and cups, it is where the arm should be to interact with it
-};//*/
-/*
+};
+
 position cups[4];   //in case there are more than two cups
 char cupindex;
 position trees[2];
@@ -267,7 +258,7 @@ void currentPosLog(){
     currentpos.y = 48 - up;
     //looking must be logged outside of code since the arm can look in any direction
 }
-*/
+
 Pixy2 pixy;
 
 bool allClear = true; // set to false in final version, true for testing
@@ -276,6 +267,12 @@ bool distDebug = false;
 bool pixyDebug = false;
 
 bool foundCup();    //to be written with pixy camera
+
+int motorDelay = 10000;
+unsigned long lastMillis;
+bool motorOn = false;
+byte incomingByte;
+byte storedByte;
 
 void setup() {
   Serial.begin(115200);
@@ -292,8 +289,10 @@ void setup() {
 
   pixy.init();
   pixy.changeProg("color_connected_components");
+  pixy.setLamp(1,1);
 
-  //coordSetup();
+  coordSetup();
+  lastMillis = millis();
 
   // Initialize servo
   grabberServo.attach(GRABBER_SERVO_PIN);
@@ -323,15 +322,19 @@ void setup() {
 
   // set sensor addresses one-by-one
   digitalWrite(XSHUT2, LOW);
-  //digitalWrite(XSHUT3, LOW);
-  //digitalWrite(XSHUT4, LOW);
+  digitalWrite(XSHUT3, LOW);
+  digitalWrite(XSHUT4, LOW);
   lox1.begin(0x30);
   digitalWrite(XSHUT2, HIGH);
-  lox2.begin(0x31);/*
+  lox2.begin(0x31);
   digitalWrite(XSHUT3, HIGH);
   lox3.begin(0x32);
   digitalWrite(XSHUT4, HIGH);
-  lox4.begin(0x33);//*/
+  lox4.begin(0x33);
+
+  //M1->run(FORWARD);
+  //motorOn = true;
+  grabberServo.write(30);
 }
 
 /*
@@ -343,18 +346,21 @@ void loop() {
 /*****************************************
  * DISTANCE SENSORS
  *****************************************/
-  // The distance sensor setup code doesn't like being in a function. Just leave it here.
   // set up distance sensors
-  /*
+  //Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
+  //Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
+  //Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
+  //Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
+  
   VL53L0X_RangingMeasurementData_t measure1;
   VL53L0X_RangingMeasurementData_t measure2;
   VL53L0X_RangingMeasurementData_t measure3;
   VL53L0X_RangingMeasurementData_t measure4;
-  */
+  
   lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
   lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
-  //lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
-  //lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
+  lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
+  lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
 /*
   if(distDebug) {
     if (measure3.RangeStatus != 4) {  // phase failures have incorrect data
@@ -370,17 +376,34 @@ void loop() {
     }
   }
 */
+/*
   // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
-  if(measure1.RangeMilliMeter >= 450) { //change to RangeInches
+  if(measure4.RangeMilliMeter >= 450) { //change to RangeInches
       allClear = true;
       setMotorSpeed(120);
+      //Serial.println(F("All clear"));
     }
-    else if(measure1.RangeMilliMeter >= 250) {
+    else if(measure4.RangeMilliMeter >= 250) {
       allClear = true;
       setMotorSpeed(60);
+      //Serial.println(F("Caution"));
     }
-    else if(measure1.RangeMilliMeter < 250) {
+    else if(measure4.RangeMilliMeter < 250) {
       allClear = false;
+      //Serial.println(F("STOP!"));
+    }
+    //Serial.println(measure4.RangeMilliMeter);
+    */
+
+    if(distDebug) {
+      Serial.print("Sensor 1: ");
+      Serial.println(measure1.RangeMilliMeter);
+      Serial.print("Sensor 2: ");
+      Serial.println(measure2.RangeMilliMeter);
+      Serial.print("Sensor 3: ");
+      Serial.println(measure3.RangeMilliMeter);
+      Serial.print("Sensor 4: ");
+      Serial.println(measure4.RangeMilliMeter);
     }
 
   /************************************************
@@ -388,11 +411,12 @@ void loop() {
    ***********************************************/
 
    pixy.ccc.getBlocks();
-   if(pixy.ccc.numBlocks) {
+/*   if(pixy.ccc.numBlocks) {
      //Serial.println("**********CUP DETECTED***********");
      allClear = false;
    }
-   /*
+   */
+   
    if(pixyDebug) {
      // If there are detected blocks, stop driving
      if (pixy.ccc.numBlocks)
@@ -413,21 +437,54 @@ void loop() {
 
 
    }
-   */
+   
+   
   /******************************************
    * MOTORS
    *****************************************/
    // only drive if sensors reporting all clear
+   /*
    if(allClear != allClearOld) {
     if(allClear) {
       driveForward();
+      //leadScrewOut();
+      //M1->run(FORWARD);
     } else {
       allStop();
+      //leadScrewStop();
     }
     allClearOld = allClear;
    }
-
-
+   */
+    /*
+   delay(3000);
+   driveForward();
+   delay(5000);
+   allStop();
+   delay(3000);
+   driveBackward();
+   delay(5000);
+   allStop();
+  */
+/*
+  if(millis() - lastMillis >= motorDelay) {
+    if(!motorOn) {
+      M1->run(FORWARD);
+      motorOn = true;
+    }
+    else {
+      //M1->run(RELEASE);
+      //motorOn = false;
+      soft_restart();
+    }
+    
+    //digitalWrite(XSHUT4, LOW);
+    //delay(10);
+    //digitalWrite(XSHUT4, HIGH);
+    lastMillis = millis();
+    
+  }
+*/
 
   /************************************************
    * ROBOT STATE CONTROL VIA SERIAL
@@ -450,7 +507,7 @@ void loop() {
     * z: Emergency abort: Stop motors, turn on all debugs, move servos to neutral positions
     * P: Toggle continuous pixy debug
     * O: Toggle continuous distance sensor debug
-   ***********************************************
+   ***********************************************/
    if(Serial.available()) {
     incomingByte = Serial.read();                  // read in character
     if(incomingByte == char(13)) {
@@ -458,45 +515,62 @@ void loop() {
           case 'w':
           case 'W':
             Serial.println("Forward");
-            drive.allStop();
-            drive.forward();
+            driveForward();
             break;
           case 'a':
           case 'A':
             Serial.println("Left");
-            drive.allStop();
-            drive.left();
+            driveLeft();
             break;
           case 's':
           case 'S':
             Serial.println("Reverse");
-            drive.allStop();
-            drive.reverse();
+            driveBackward();
             break;
           case 'd':
           case 'D':
             Serial.println("Right");
-            drive.allStop();
-            drive.right();
+            driveRight();
             break;
           case 'q':
           case 'Q':
             Serial.println("Drive Stop");
-            drive.allStop();
+            allStop();
             break;
           case 'n':
           case 'N':
             Serial.println("Counter-clockwise susan");
-            arm.counterSusan(QUARTER_TURN);
+            susan->step(QUARTER_TURN, FORWARD, SINGLE);
             break;
           case 'm':
           case 'M':
             Serial.println("Clockwise susan");
-            arm.clockwiseSusan(QUARTER_TURN);
+            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
             break;
           case 't':
           case 'T':
-            arm.raiseArm()
+            extendo->step(ARM_EXTEND_LENGTH, BACKWARD, SINGLE); // backward is up
+            break;
+          case 'g':
+          case 'G':
+            extendo->step(ARM_EXTEND_LENGTH, FORWARD, SINGLE); 
+            break;
+          case 'y':
+          case 'Y':
+            grabberServo.write(ROTATEY_UP);
+            break;
+          case 'h':
+          case 'H':
+            grabberServo.write(ROTATEY_DOWN);
+            break;
+          case 'p':
+          case 'P':
+            pixyDebug = !pixyDebug;
+            break;
+          case 'o':
+          case 'O':
+            distDebug = !distDebug;
+            break;
           default:
             Serial.println("Unknown command");
             break;
@@ -507,6 +581,6 @@ void loop() {
       }
         storedByte = incomingByte;
   }
-  */
+  
 
 }

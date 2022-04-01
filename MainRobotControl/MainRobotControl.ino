@@ -17,220 +17,49 @@
  * Reference schematic.png for connection details
  ******************************************************************************************/
 
-//#include "MainRobotControl.h"
-/********************************************************************************************
- * HEADER FILE CONTENTS (merged into main program to fix errors)
- *******************************************************************************************/
-
-//***************simple_motor.h**************************
-#include <Arduino.h>
 #include <Adafruit_MotorShield.h>
 #include <Servo.h>
-#include "A4988.h"
-#include "BasicStepperDriver.h"
+#include <Pixy2.h>
+#include "Adafruit_VL53L0X.h"
 
-class driveMotors {
-public:
-  driveMotors();
-  //void initialize();
-  void forward();
-  void reverse();
-  void left();
-  void right();
-  void setSpeed(int speed);
-  void stopMotor(int motorNum);
-  void allStop();
-};
-
-class armMotors {
-public:
-  armMotors();
-  //void initialize();
-  void clockwiseSusan(int steps);
-  void counterSusan(int steps);
-  void turnSusan(bool dir);
-  void raiseArm(int steps);
-  void lowerArm(int steps);
-  void setGrabber(int degrees); // sets rotation angle of arm rotator servo
-  void extendScrew(int steps);
-  void retractScrew(int steps);
-  void openClaw();
-  void closeClaw();
-};
-
-//simple_motor.cpp
 #define MOTOR_STEPS 200
 #define RPM 120
-#define DIR1 26
-#define STEP1 27
-#define DIR2 32
-#define STEP2 33
-#define DIR3 38
-#define STEP3 39
-#define GRABBER_SERVO_PIN 9
-#define CLAW_SERVO_PIN 10
-#define SOLENOID_PIN 12
+#define GRABBER_SERVO_PIN 10
+#define CLAW_SERVO_PIN 9
+#define OUT1 5
+#define OUT2 6
+#define D1 13
 
 //defining arm lengths:
-#define ARM_PIVOT_FULL_LENGHT  200    //this should raise us to a 90degree angle
-#define ARM_PIVOT_HALF_LENGTH  100    //45degree
-#define ARM_EXTEND_LENGTH      500    //this raises the arm up to tree height
-#define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw
+#define ARM_EXTEND_LENGTH      500    //this raises the arm up to tree height (untested)
+#define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw (untested)
+#define ROTATEY_DOWN 10
+#define ROTATEY_UP 100
+#define ROTATEY_CUP 40
 
 //number of steps to get a 90degree turn from susan
 #define QUARTER_TURN 450  //testing needed to get precise amount
 
-const int raiseSteps = 0;  // number of steps to raise arm. unkown as of yet
-const int extendSteps = 0; // number of steps to extend leadscrew. unknown as of yet
-const int clawOpenDegrees = 45; // Tested
-const int clawClosedDegrees = 105; // Tested
+#define XSHUT1 4
+#define XSHUT2 7
+#define XSHUT3 11
+#define XSHUT4 12
 
-Adafruit_MotorShield AFMS = Adafruit_MotorShield();
-Adafruit_DCMotor *M1 = AFMS.getMotor(1);
-Adafruit_DCMotor *M2 = AFMS.getMotor(2);
-Adafruit_DCMotor *M3 = AFMS.getMotor(3);
-Adafruit_DCMotor *M4 = AFMS.getMotor(4);
+#define clawOpenDegrees 45 // Tested
+#define clawClosedDegrees 105 // Tested
 
-A4988 turnStepper(MOTOR_STEPS, DIR1, STEP1);
-A4988 raiseStepper(MOTOR_STEPS, DIR2, STEP2);
-A4988 extendStepper(MOTOR_STEPS, DIR3, STEP3);
+Adafruit_MotorShield AFMSstep(0x61); // Rightmost jumper closed, bottom, stepper motors
+Adafruit_MotorShield AFMSdc(0x60); // Default address, no jumpers, top, dc motors
+Adafruit_StepperMotor *susan = AFMSstep.getStepper(200, 1); // lazy susan
+Adafruit_StepperMotor *extendo = AFMSstep.getStepper(200, 2); // raise arm
+
+Adafruit_DCMotor *M1 = AFMSdc.getMotor(1);
+Adafruit_DCMotor *M2 = AFMSdc.getMotor(2);
+Adafruit_DCMotor *M3 = AFMSdc.getMotor(3);
+Adafruit_DCMotor *M4 = AFMSdc.getMotor(4);
 
 Servo grabberServo;
 Servo clawServo;
-
-armMotors::armMotors() {
-
-  turnStepper.begin(RPM);
-  raiseStepper.begin(RPM);
-  extendStepper.begin(RPM);
-
-  // Enable motors. TODO: CHECK IF FUNCTION USES CORRECT PIN
-  turnStepper.setEnableActiveState(LOW);
-  raiseStepper.setEnableActiveState(LOW);
-  extendStepper.setEnableActiveState(LOW);
-
-  // Initialize servo
-  grabberServo.attach(GRABBER_SERVO_PIN);
-  clawServo.attach(CLAW_SERVO_PIN);
-
-  // Set solenoid as output
-  pinMode(SOLENOID_PIN, OUTPUT);
-}
-
-// driveMotor class constructor
-driveMotors::driveMotors() {
-
-  if (!AFMS.begin()) {         // create with the default frequency 1.6KHz
-    // if (!AFMS.begin(1000)) {  // OR with a different frequency, say 1KHz
-    Serial.println("Could not find Motor Shield. Check wiring.");
-    while (1);
-  }
-  Serial.println("Motor Shield found.");
-}
-
-// Drive up (y+)
-void driveMotors::forward() {
-  M1->run(FORWARD);
-  M3->run(FORWARD);
-}
-// Drive down (y-)
-void driveMotors::reverse() {
-  M1->run(BACKWARD);
-  M3->run(BACKWARD);
-}
-// Drive left (x-)
-void driveMotors::left() {
-  M2->run(BACKWARD);
-  M4->run(BACKWARD);
-}
-// Drive right (x+)
-void driveMotors::right() {
-  M2->run(FORWARD);
-  M4->run(FORWARD);
-}
-// Set speed of specified motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4. Speed is 0-255.
-void driveMotors::setSpeed(int speed) {
-  M1->setSpeed(speed);
-  M2->setSpeed(speed);
-  M3->setSpeed(speed);
-  M4->setSpeed(speed);
-}
-// Stop specific motor. 1 is M1, 2 is M2, 3 is M3, 4 is M4.
-void driveMotors::stopMotor(int motorNum) {
-  switch(motorNum) {
-    case 1:
-      M1->run(RELEASE);
-      break;
-    case 2:
-      M2->run(RELEASE);
-      break;
-    case 3:
-      M3->run(RELEASE);
-      break;
-    case 4:
-      M4->run(RELEASE);
-      break;
-    default:
-      break;
-  }
-}
-// Stop ALL motors
-void driveMotors::allStop() {
-  M1->run(RELEASE);
-  M2->run(RELEASE);
-  M3->run(RELEASE);
-  M4->run(RELEASE);
-}
-
-// Note: Clockwise and counterclockwise may be reversed. Testing needed
-
-void armMotors::clockwiseSusan(int steps) {
-  turnStepper.move(steps);
-}
-
-void armMotors::counterSusan(int steps) {
-  turnStepper.move(-steps);
-}
-
-void armMotors::turnSusan(bool dir){  // 0 = c, 1 = cc
-  if(dir)
-    counterSusan(QUARTER_TURN);
-  else
-    clockwiseSusan(QUARTER_TURN);
-}
-
-// Step amounts for extend/retract are not yet determined
-void armMotors::raiseArm(int steps) {
-  raiseStepper.move(steps);
-}
-
-void armMotors::lowerArm(int steps) {
-  raiseStepper.move(-steps);
-}
-
-void armMotors::setGrabber(int degrees) {
-  grabberServo.write(degrees);
-}
-
-// Once again, step number is as-of-yet undetermined.
-void armMotors::extendScrew(int steps) {
-  extendStepper.move(steps);
-}
-
-void armMotors::retractScrew(int steps) {
-  extendStepper.move(-steps);
-}
-
-void armMotors::openClaw() {
-  clawServo.write(clawOpenDegrees);
-}
-
-void armMotors::closeClaw() {
-  clawServo.write(clawClosedDegrees);
-}
-
-//coord_system.h
-#include "Adafruit_VL53L0X.h"
 
 // distance sensor setup
 Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
@@ -242,6 +71,71 @@ VL53L0X_RangingMeasurementData_t measure1;
 VL53L0X_RangingMeasurementData_t measure2;
 VL53L0X_RangingMeasurementData_t measure3;
 VL53L0X_RangingMeasurementData_t measure4;
+
+void allStop() {
+  M1->run(RELEASE);
+  M2->run(RELEASE);
+  M3->run(RELEASE);
+  M4->run(RELEASE);
+}
+
+// Drive motors will continue driving until allStop() is called or an individual motor is stopped
+void driveBackward() {
+  allStop();
+  M1->run(FORWARD);
+  M3->run(BACKWARD);
+}
+
+void driveForward() {
+  allStop();
+  M1->run(BACKWARD);
+  M3->run(FORWARD);
+}
+
+void driveLeft() {
+  allStop();
+  M2->run(BACKWARD);
+  M4->run(FORWARD);
+}
+
+void driveRight() {
+  allStop();
+  M2->run(FORWARD);
+  M4->run(BACKWARD);
+}
+
+// Lead screw will continue moving until leadScrewStop() is called
+void leadScrewOut() {
+  digitalWrite(D1, LOW);
+  analogWrite(OUT1, 127);
+  digitalWrite(OUT2, LOW);
+}
+
+void leadScrewIn() {
+  digitalWrite(D1, LOW);
+  analogWrite(OUT2, 127);
+  digitalWrite(OUT1, LOW);
+}
+
+void leadScrewStop() {
+  digitalWrite(D1, HIGH);
+  digitalWrite(OUT1, LOW);
+  digitalWrite(OUT2, LOW);
+}
+
+void setMotorSpeed(int speed) {
+  M1->setSpeed(speed);
+  M2->setSpeed(speed);
+  M3->setSpeed(speed);
+  M4->setSpeed(speed);
+}
+
+// To turn stepper:
+// step1->step(steps, FORWARD, SINGLE);
+// Change FORWARD to BACKWARD for other direction
+
+// To set servo:
+// servoName.write(degrees);
 
 enum direction{up, down, left, right};    //using the same names as the moter library names
 
@@ -256,13 +150,8 @@ position cups[4];   //in case there are more than two cups
 char cupindex;
 position trees[2];
 char treeindex;
-
 position currentpos;
 position precups[7];
-
-void logcup();
-void currentPosLog();
-void coordSetup();
 
 //coord_system.cpp
 #define tocords(steps) (double)(steps/2) //experimentation will make this more precise
@@ -271,11 +160,6 @@ void coordSetup();
 const int cupdistance = 12;
 const int fromcenter = 5.75;
 direction pixyDir = left;
-
-//lox1 = Adafruit_VL53L0X();
-//lox2 = Adafruit_VL53L0X();
-//lox3 = Adafruit_VL53L0X();
-//lox4 = Adafruit_VL53L0X();
 
 // this is the code for how the robot moves around and logs the position of the cups
 void coordSetup(){
@@ -358,8 +242,8 @@ void currentPosLog(){
     //all of these can change to satisfy overall design
 
     //up and left are garunteed to be seen
-    double up = measure1.RangeMilliMeter/25.4 + fromcenter + 1.5; //offset by the size of wood
-    double left = measure3.RangeMilliMeter/25.4 + fromcenter + 1.5;
+    double up = measure2.RangeMilliMeter/25.4 + fromcenter;
+    double left = measure4.RangeMilliMeter/25.4 + fromcenter;
 
     //there might not be a visible wall for these sensors,
     //use these later on for double checking
@@ -374,32 +258,52 @@ void currentPosLog(){
     //looking must be logged outside of code since the arm can look in any direction
 }
 
-//MainRobotControl.h
-#include <Pixy2.h>
 Pixy2 pixy;
-#define XSHUT1 16
-#define XSHUT2 17
-#define XSHUT3 18
-#define XSHUT4 19
-/********************************************************************************************
- * END HEADER FILE CONTENTS
- *******************************************************************************************/
 
 bool allClear = true; // set to false in final version, true for testing
 bool allClearOld = false;
+bool distDebug = false;
+bool pixyDebug = false;
 
-bool foundCup();    //to be written with pixy camera
+//bool foundCup();    //to be written with pixy camera
+bool foundcups = false; //this indicates wether or not we have gotten the cup locations yet.
+bool foundcupsState = false;
 
-driveMotors drive = driveMotors();
-armMotors arm = armMotors();
+int motorDelay = 10000;
+unsigned long lastMillis;
+bool motorOn = false;
+byte incomingByte;
+byte storedByte;
 
 void setup() {
   Serial.begin(115200);
+  // initialize motor shields
+  AFMSstep.begin();
+  AFMSdc.begin();
+
+  susan->setSpeed(30);
+  extendo->setSpeed(30);
+  M1->setSpeed(120);
+  M2->setSpeed(120);
+  M3->setSpeed(120);
+  M4->setSpeed(120);
 
   pixy.init();
   pixy.changeProg("color_connected_components");
+  pixy.setLamp(1,1);
 
   coordSetup();
+  lastMillis = millis();
+
+  // Initialize servo
+  grabberServo.attach(GRABBER_SERVO_PIN);
+  clawServo.attach(CLAW_SERVO_PIN);
+
+  // setup MC33926 H-bridge outputs and disable
+  pinMode(OUT1, OUTPUT);
+  pinMode(OUT2, OUTPUT);
+  pinMode(D1,OUTPUT);
+  digitalWrite(D1, HIGH); // high is disabled, low is enabled
 
   pinMode(XSHUT1, OUTPUT);
   pinMode(XSHUT2, OUTPUT);
@@ -428,18 +332,20 @@ void setup() {
   lox3.begin(0x32);
   digitalWrite(XSHUT4, HIGH);
   lox4.begin(0x33);
+
+  //M1->run(FORWARD);
+  //motorOn = true;
+  clawServo.write(145);
 }
 
 /*
   The robot has two modes, cup hunt/traverse board and grabbing beads/placing in cups
 */
-bool foundcups = false; //this indicates wether or not we have gotten the cup locations yet.
 
 void loop() {
 /*****************************************
  * DISTANCE SENSORS
  *****************************************/
-  // The distance sensor setup code doesn't like being in a function. Just leave it here.
   // set up distance sensors
   /*
   VL53L0X_RangingMeasurementData_t measure1;
@@ -452,7 +358,7 @@ void loop() {
   lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
   lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
 
-
+/*
   if (measure3.RangeStatus != 4) {  // phase failures have incorrect data
     Serial.print("Distance 1 (mm): "); Serial.println(measure3.RangeMilliMeter);
   } else {
@@ -464,15 +370,15 @@ void loop() {
   } else {
     Serial.println(" sensor 4 out of range ");
   }
-
+*/
   // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
   if(measure1.RangeMilliMeter >= 450) { //change to RangeInches
       allClear = true;
-      drive.setSpeed(100);
+      setMotorSpeed(100);
     }
     else if(measure1.RangeMilliMeter >= 250) {
       allClear = true;
-      drive.setSpeed(60);
+      setMotorSpeed(60);
     }
     else if(measure1.RangeMilliMeter < 250) {
       allClear = false;
@@ -483,13 +389,14 @@ void loop() {
    ***********************************************/
 
    pixy.ccc.getBlocks();
-
+   
    // If there are detected blocks, stop driving
    if (pixy.ccc.numBlocks)
    {
+    foundcups = true; // not final
     //Serial.println("********CUP DETECTED*****");
     //allClear = false; // stop driving
-
+    /*
      Serial.print("Detected ");
      Serial.println(pixy.ccc.numBlocks);
      for (int i=0; i<pixy.ccc.numBlocks; i++)
@@ -499,12 +406,14 @@ void loop() {
        Serial.print(": ");
        pixy.ccc.blocks[i].print();
      }
+     */
 
    }
 
   /******************************************
    * MOTORS
    *****************************************/
+   /*
    // only drive if sensors reporting all clear
    if(allClear != allClearOld) {
     if(allClear) {
@@ -514,72 +423,80 @@ void loop() {
     }
     allClearOld = allClear;
    }
+   */
 
   /************************************************
    * ROBOT STATE CONTROL
    ***********************************************/
 
   //we must first raise the arm so we can rotate
-  arm.raiseArm(10);
+  grabberServo.write(20);
 
-  if(!foundcups){
+  if(!foundcupsState){
     //start here, this is where we go through the board
     //we should be foward facing
-    drive.forward();
+    driveForward();
     while(currentpos.y <= 24){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundcups){
-        drive.allStop();
-          //do cuplog stuff here
-        drive.forward(); //continue moving
+        allStop();
+        Serial.println("Here be cups"); // replace with actual code
+        foundcups = false;
+        delay(1000);
+        driveForward(); //continue moving
       }
     }
-    drive.allStop();
+    allStop();
 
     //are going to turn to face top wall
-    arm.turnSusan(0);
+    susan->step(QUARTER_TURN, FORWARD, SINGLE); // test
     currentpos.looking = right;
 
-    drive.left();
+    driveLeft();
     while(currentpos.x <= 90){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundcups){
-        drive.allStop();
-          //do cuplog stuff here
-        drive.left(); //continue moving
+        allStop();
+        Serial.println("Here be cups"); // replace with actual code
+        foundcups = false;
+        delay(1000);
+        driveRight(); //continue moving
       }
     }
-    drive.allStop();
+    allStop();
 
-    arm.turnSusan(0);
-    arm.turnSusan(0);
+    susan->step(QUARTER_TURN*2, BACKWARD, SINGLE);
     currentpos.looking = left;
 
-    drive.right();
+    driveRight();
     while(currentpos.x > 24){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundcups){
-        drive.allStop();
-          //do cuplog stuff here
-        drive.right(); //continue moving
+        allStop();
+        Serial.println("Here be cups"); // replace with actual code
+        foundcups = false;
+        delay(1000);
+        driveRight(); //continue moving
       }
     }
-    drive.allStop();
+    allStop();
 
-    arm.turnSusan(1);
+    susan->step(QUARTER_TURN, BACKWARD, SINGLE);
     currentpos.looking = down;
 
-    drive.reverse();
+    driveBackward();
     while(currentpos.y > 6){  //the turning point of the robot
       currentPosLog();  //update position
       if(foundcups){
-        drive.allStop();
-          //do cuplog stuff here
-        drive.reverse(); //continue moving
+        allStop();
+        Serial.println("Here be cups"); // replace with actual code
+        foundcups = false;
+        delay(1000);
+        driveBackward(); //continue moving
       }
     }
-    drive.allStop();
-    foundcups = 1;
+    allStop();
+    foundcupsState = 1;
   }
   else{
     //this is where we will grab the beads off the trees and put into the cups,
@@ -596,57 +513,57 @@ void loop() {
 
       //check to see if we need to move in two directions both ways
       if(xdif > 0 && ydif > 0){
-        drive.forward();
+        driveForward();
         while(currentpos.y <= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
-        drive.left();
+        allStop();
+        driveLeft();
         while(currentpos.x <= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(xdif < 0 && ydif < 0){
-        drive.right();
+        driveRight();
         while(currentpos.x >= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
-        drive.reverse();
+        allStop();
+        driveBackward();
         while(currentpos.y >= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       //single directional movement
       else if(xdif > 0){
-        drive.forward();
+        driveForward();
         while(currentpos.y <= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(xdif < 0){
-        drive.reverse();
+        driveBackward();
         while(currentpos.y >= trees[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(ydif > 0){
-        drive.left();
+        driveLeft();
         while(currentpos.x <= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(ydif < 0){
-        drive.right();
+        driveRight();
         while(currentpos.x >= trees[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
 
       //GRAB BEADS CODE HERE!!!
@@ -657,57 +574,57 @@ void loop() {
       //now need to get to cups
 
       if(xdif > 0 && ydif > 0){
-        drive.forward();
+        driveForward();
         while(currentpos.y <= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
-        drive.left();
+        allStop();
+        driveLeft();
         while(currentpos.x <= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(xdif < 0 && ydif < 0){
-        drive.right();
+        driveRight();
         while(currentpos.x >= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
-        drive.reverse();
+        allStop();
+        driveBackward();
         while(currentpos.y >= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       //single directional movement
       else if(xdif > 0){
-        drive.forward();
+        driveForward();
         while(currentpos.y <= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(xdif < 0){
-        drive.reverse();
+        driveBackward();
         while(currentpos.y >= cups[i].y){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(ydif > 0){
-        drive.left();
+        driveLeft();
         while(currentpos.x <= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
       else if(ydif < 0){
-        drive.right();
+        driveRight();
         while(currentpos.x >= cups[i].x){  //the turning point of the robot
           currentPosLog();  //update position
         }
-        drive.allStop();
+        allStop();
       }
 
       //BEAD DROP CODE
