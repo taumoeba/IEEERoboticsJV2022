@@ -10,8 +10,8 @@
  * Components List:
  * - Adafruit Motor Control Shield v2.3
  * - 4x DC Motor
- * - 3x Stepper Motor
- * - 1x Servo Motor
+ * - 2x Stepper Motor
+ * - 2x Servo Motor
  * - Pixy2 Smart Vision Sensor
  *
  * Reference schematic.png for connection details
@@ -393,7 +393,7 @@ void loop() {
    // If there are detected blocks, stop driving
    if (pixy.ccc.numBlocks)
    {
-    foundcups = true; // not final
+    //foundcups = true; // not final
     //Serial.println("********CUP DETECTED*****");
     //allClear = false; // stop driving
     /*
@@ -432,72 +432,93 @@ void loop() {
   //we must first raise the arm so we can rotate
   grabberServo.write(20);
 
-  if(!foundcupsState){
+  //if(!foundcupsState){
     //start here, this is where we go through the board
     //we should be foward facing
     driveForward();
     while(currentpos.y <= 24){  //the turning point of the robot
+      Serial.println("DRIVING FOWARD");
       currentPosLog();  //update position
+      /*
       if(foundcups){
         allStop();
         Serial.println("Here be cups"); // replace with actual code
         foundcups = false;
         delay(1000);
         driveForward(); //continue moving
-      }
+      }*/
     }
     allStop();
-
+    delay(5000);
     //are going to turn to face top wall
+    Serial.println("LOOKING UP");
     susan->step(QUARTER_TURN, FORWARD, SINGLE); // test
     currentpos.looking = right;
+    
+    delay(5000);
 
+    //driving left
     driveLeft();
     while(currentpos.x <= 90){  //the turning point of the robot
       currentPosLog();  //update position
-      if(foundcups){
+      Serial.println("DRIVING LEFT");
+      /*if(foundcups){
         allStop();
         Serial.println("Here be cups"); // replace with actual code
         foundcups = false;
         delay(1000);
         driveRight(); //continue moving
-      }
+      }*/
     }
     allStop();
+    delay(5000);
 
+    //facing the camera down
+    Serial.println("LOOKING DOWN");
     susan->step(QUARTER_TURN*2, BACKWARD, SINGLE);
     currentpos.looking = left;
 
+    delay(5000);
+
+    //driving right
     driveRight();
     while(currentpos.x > 24){  //the turning point of the robot
       currentPosLog();  //update position
-      if(foundcups){
+      Serial.println("DRIVING RIGHT");
+      /*if(foundcups){
         allStop();
         Serial.println("Here be cups"); // replace with actual code
         foundcups = false;
         delay(1000);
         driveRight(); //continue moving
-      }
+      }*/
     }
     allStop();
 
+    delay(5000);
+
+    //looking right
+    Serial.print("LOOKING RIGHT");
     susan->step(QUARTER_TURN, BACKWARD, SINGLE);
     currentpos.looking = down;
+
+    delay(5000);
 
     driveBackward();
     while(currentpos.y > 6){  //the turning point of the robot
       currentPosLog();  //update position
-      if(foundcups){
+      Serial.println("DRIVING BACKWARDS");
+      /*if(foundcups){
         allStop();
         Serial.println("Here be cups"); // replace with actual code
         foundcups = false;
         delay(1000);
         driveBackward(); //continue moving
-      }
+      }*/
     }
     allStop();
-    foundcupsState = 1;
-  }
+    //foundcupsState = 1;
+  /*}
   else{
     //this is where we will grab the beads off the trees and put into the cups,
     //we will probably want to loop through this multiple times to grab all beads, maybe 4 times at most?
@@ -632,6 +653,6 @@ void loop() {
       //once we loop, we will go back to the first tree to grab
       //beads that we have missed.
     }
-  }
+  }*/
 
 }
