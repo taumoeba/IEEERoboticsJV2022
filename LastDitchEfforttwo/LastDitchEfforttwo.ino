@@ -473,7 +473,7 @@ void setup() {
     delay(6000);
     leadScrewStop();
     delay(1000);
-    clawServo.write(CLAWOPEN);
+    clawServo.write(0);
     delay(1000);
     grabberServo.write(150);
     delay(6000);
@@ -490,7 +490,7 @@ void setup() {
       //Serial.println("DROP BEADS");
       grabberServo.write(45);
       delay(1000);
-      clawServo.write(CLAWCLOSE);
+      clawServo.write(160);
       //Serial.println("done");
     }
     else if(cups[0].looking == left){
@@ -501,7 +501,7 @@ void setup() {
       //Serial.println("DROP BEADS");
       grabberServo.write(45);
       delay(1000);
-      clawServo.write(CLAWCLOSE);
+      clawServo.write(160);
       delay(1000);
       //Serial.println("done");
     }
@@ -516,7 +516,7 @@ void setup() {
       delay(1000);
       grabberServo.write(45);
       delay(1000);
-      clawServo.write(CLAWCLOSE);
+      clawServo.write(160);
       //Serial.println("done");
     }
   }//*/
