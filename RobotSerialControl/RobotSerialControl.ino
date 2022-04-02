@@ -35,8 +35,10 @@
 #define ARM_EXTEND_LENGTH      500    //this raises the arm up to tree height (untested)
 #define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw (untested)
 #define ROTATEY_DOWN 10
-#define ROTATEY_UP 100
+#define ROTATEY_RIGHT 100
 #define ROTATEY_CUP 40
+#define ROTATEY_TREE1 140
+#define ROTATEY_TREE2 180
 
 //number of steps to get a 90degree turn from susan
 #define QUARTER_TURN 450  //testing needed to get precise amount
@@ -497,8 +499,8 @@ void loop() {
     * d: Move right
     * n: Turn lazy susan counter-clockwise 1 position
     * m: Turn lazy susan clockwise 90 degrees
-    * t: Raise arm
-    * g: Lower arm
+    * t: Raise arm  DONT USE
+    * g: Lower arm  DONT USE
     * y: Raise grabber
     * h: Lower grabber
     * u: Extend lead screw
@@ -549,17 +551,17 @@ void loop() {
             Serial.println("Clockwise susan");
             susan->step(QUARTER_TURN, BACKWARD, SINGLE);
             break;
-          case 't':
+          /*case 't':
           case 'T':
             extendo->step(ARM_EXTEND_LENGTH, BACKWARD, SINGLE); // backward is up
             break;
           case 'g':
           case 'G':
             extendo->step(ARM_EXTEND_LENGTH, FORWARD, SINGLE); 
-            break;
+            break;*/
           case 'y':
           case 'Y':
-            grabberServo.write(ROTATEY_UP);
+            grabberServo.write(ROTATEY_RIGHT);
             break;
           case 'h':
           case 'H':
@@ -572,6 +574,18 @@ void loop() {
           case 'o':
           case 'O':
             distDebug = !distDebug;
+            break;
+          case 'u':
+          case 'U':
+            leadScrewOut();
+            delay(1000);
+            leadScrewStop();
+            break;
+          case 'j':
+          case 'J':
+            leadScrewIn();
+            delay(1000);
+            leadScrewStop();
             break;
           default:
             Serial.println("Unknown command");
