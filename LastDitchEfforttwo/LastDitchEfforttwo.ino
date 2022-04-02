@@ -41,7 +41,7 @@
 #define ROTATEY_CUP 40
 
 //number of steps to get a 90degree turn from susan
-#define QUARTER_TURN 450  //testing needed to get precise amount
+#define QUARTER_TURN 460  //testing needed to get precise amount
 
 #define XSHUT1 4
 #define XSHUT2 7
@@ -343,7 +343,7 @@ void driveOneInch(char dir) {
 }
 
 void setup() {
-  // Serial.begin(115200);
+  Serial.begin(115200);
   // initialize motor shields
   AFMSstep.begin();
   AFMSdc.begin();
@@ -408,11 +408,18 @@ void setup() {
   coordSetup(); //set up coords
   
   cupindex = 0;
+
+  while(!Serial.available()){
+    
+  }
+  char incomingByte = Serial.read();
+  Serial.println(incomingByte);
   
-  susan->step(QUARTER_TURN, FORWARD, SINGLE);
+  susan->step(QUARTER_TURN, BACKWARD, SINGLE);
   
   pixy.ccc.getBlocks();
   if(pixy.ccc.numBlocks) {
+    Serial.println("CUP!");
     cups[cupindex++] = precups[0];
   }  
 
@@ -422,15 +429,17 @@ void setup() {
 
   pixy.ccc.getBlocks();
   if(pixy.ccc.numBlocks) {
+    Serial.println("CUP!");
     cups[cupindex++] = precups[1];
   }  
 
   
-  susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-  susan->step(QUARTER_TURN, BACKWARD, SINGLE);
+  susan->step(QUARTER_TURN, FORWARD, SINGLE);
+  susan->step(QUARTER_TURN, FORWARD, SINGLE);
   
   pixy.ccc.getBlocks();
   if(pixy.ccc.numBlocks) {
+    Serial.println("CUP!");
     cups[cupindex++] = precups[1];
   }
   
@@ -438,7 +447,48 @@ void setup() {
   delay(MM(TOMM(18)));
   allStop();
 
-  
+  Serial.println("done");
+  grabberServo.write(100);
+  delay(1000);
+  grabberServo.write(45);
+  Serial.println("wave1");
+
+//*
+  if(cupindex == 0){
+    //wave if no cups
+    grabberServo.write(1000);
+    delay(1000);
+    grabberServo.write(45);
+    Serial.println("NOCUPS");
+  }
+  else{
+    //GRABBEADS
+    Serial.println("CUPS!");
+    driveLeft();
+    delay(MM(TOMM(14)));
+    allStop();
+    grabberServo.write(140);
+    leadScrewOut();
+    delay(6000);
+    leadScrewStop();
+    delay(1000);
+    clawServo.write(300);
+    delay(1000);
+    clawServo.write(0);
+    grabberServo.write(150);
+    delay(6000);
+    leadScrewIn();
+    delay(6000);
+    leadScrewStop();
+    grabberServo.write(100);
+    //deal with cup in a bit
+    if(cups[0].y == 7){
+      driveRight();
+      delay(MM(TOMM(11)));
+      Serial.println("DROP BEADS");
+    }
+  }//*/
+
   /*
   driveForward();
   delay(3452*2);

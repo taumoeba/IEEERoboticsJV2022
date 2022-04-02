@@ -404,37 +404,16 @@ void setup() {
   //motorOn = true;
   grabberServo.write(45); // get grabber out of the way for turning
   //extendo->step(100, FORWARD, SINGLE);
-  
-  cupindex = 0;
-  
-  susan->step(QUARTER_TURN, FORWARD, SINGLE);
-  
-  pixy.ccc.getBlocks();
-  if(pixy.ccc.numBlocks) {
-    cups[cupindex++] = precups[0];
-  }  
 
   driveLeft();
-  delay(MM(TOMM(18)));
+  delay(MM(TOMM(16)));
   allStop();
 
-  pixy.ccc.getBlocks();
-  if(pixy.ccc.numBlocks) {
-    cups[cupindex++] = precups[1];
-  }  
-
-  
-  susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-  susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-
+ 
   driveRight();
-  delay(MM(TOMM(18)));
+  delay(MM(TOMM(16)));
   allStop();
 
-  pixy.ccc.getBlocks();
-  if(pixy.ccc.numBlocks) {
-    cups[cupindex++] = precups[1];
-  }  
   /*
   driveForward();
   delay(3452*2);

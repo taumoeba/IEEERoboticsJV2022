@@ -607,36 +607,64 @@ void loop() {
             distDebug = 0;
           case 'c':
           case 'C':
-            Serial.println("FORWARD");
-            driveForward();
-            delay(MM(TOMM(18)));
-            allStop();
-            Serial.println("CLOCKWISE");
             susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-            delay(2000);
-            Serial.println("RIGHT");
-            driveRight();
-            delay(MM(TOMM(60)));
-            allStop();
-            Serial.println("COUNTER-CLOCKWISE");
-            susan->step(QUARTER_TURN, FORWARD, SINGLE);
-            delay(2000);
-            susan->step(QUARTER_TURN, FORWARD, SINGLE);
-            delay(2000);
-            Serial.println("LEFT");
-            driveLeft();
-            delay(MM(TOMM(60)));
-            allStop();
-            Serial.println("COUNTER-CLOCKWISE");
-            susan->step(QUARTER_TURN, FORWARD, SINGLE);
-            delay(2000);
-            driveBackward();
-            delay(MM(TOMM(18)));
-            allStop();
-            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-            delay(2000);
-            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-            delay(2000);
+  
+  pixy.ccc.getBlocks();
+  if(pixy.ccc.numBlocks) {
+    cups[cupindex++] = precups[0];
+  }  
+
+  driveLeft();
+  delay(MM(TOMM(18)));
+  allStop();
+
+  pixy.ccc.getBlocks();
+  if(pixy.ccc.numBlocks) {
+    cups[cupindex++] = precups[1];
+  }  
+
+  
+  susan->step(QUARTER_TURN, FORWARD, SINGLE);
+  susan->step(QUARTER_TURN, FORWARD, SINGLE);
+  
+  pixy.ccc.getBlocks();
+  if(pixy.ccc.numBlocks) {
+    cups[cupindex++] = precups[1];
+  }
+  
+  driveRight();
+  delay(MM(TOMM(18)));
+  allStop();
+
+  Serial.println("done");
+  grabberServo.write(100);
+  grabberServo.write(45);
+  Serial.println("wave1");
+
+//*
+  if(cupindex == 0){
+    //wave if no cups
+    grabberServo.write(100);
+    grabberServo.write(45);
+    Serial.println("NOCUPS");
+  }
+  else{
+    //GRABBEADS
+    Serial.println("CUPS!");
+    driveLeft();
+    delay(MM(TOMM(14)));
+    allStop();
+    grabberServo.write(100);
+    leadScrewOut();
+    delay(6000);
+    leadScrewStop();
+    clawServo.write(10);
+    grabberServo.write(110);
+    leadScrewIn();
+    delay(6000);
+    grabberServo.write(45);
+    //deal with cup in a bit
+  }//*/
             break;
           default:
             Serial.println("Unknown command");
