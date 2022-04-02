@@ -37,6 +37,7 @@
 #define SCREW_EXTEND_LENGTH    1000   //this fully extends the lead screw (untested)
 #define ROTATEY_DOWN 10
 #define ROTATEY_UP 100
+#define ROTATEY_FULL_UP 150
 #define ROTATEY_CUP 40
 
 //number of steps to get a 90degree turn from susan
@@ -242,6 +243,11 @@ void logCup() {
   foundcups[cupLogIndex] = 1;
   cups[cupLogIndex].x = currentpos.x;
   cups[cupLogIndex].y = currentpos.y;
+  Serial.println("Cup found!");
+  Serial.print("X: ");
+  Serial.print(cups[cupLogIndex].x);
+  Serial.print(", Y: ");
+  Serial.println(cups[cupLogIndex.y]);
 }
 
 Pixy2 pixy;
@@ -267,6 +273,45 @@ void centerCup() {
     else if(currentpos.looking == right) driveRight();
   }
   allStop();
+}
+
+// movement speed (at 120 RPM): 1mm every 7.55ms
+// so to go one inch, run motor for 191.77ms (round to 192)
+const int inchMotorDelay = 192;
+void driveOneInch(char dir) {
+  // f for forward, b for backward, l for left, r for right
+  switch(dir) {
+    case 'f':
+      driveForward();
+      // I prefer not using delays, but it should work for now.
+      // It's less than a fifth of a second, so it's not using up too much processing time
+      delay(inchMotorDelay);
+      allStop();
+      break;
+    case 'b':
+      driveBackward();
+      // I prefer not using delays, but it should work for now.
+      // It's less than a fifth of a second, so it's not using up too much processing time
+      delay(inchMotorDelay);
+      allStop();
+      break;
+    case 'l':
+      driveLeft();
+      // I prefer not using delays, but it should work for now.
+      // It's less than a fifth of a second, so it's not using up too much processing time
+      delay(inchMotorDelay);
+      allStop();
+      break;
+    case 'r':
+      driveRight();
+      // I prefer not using delays, but it should work for now.
+      // It's less than a fifth of a second, so it's not using up too much processing time
+      delay(inchMotorDelay);
+      allStop();
+      break;
+    default:
+      break;
+  }
 }
 
 void setup() {
@@ -334,204 +379,114 @@ void setup() {
 }
 
 void loop() {
-/*****************************************
- * DISTANCE SENSORS
- *****************************************/
-  // set up distance sensors
-  //Adafruit_VL53L0X lox1 = Adafruit_VL53L0X();
-  //Adafruit_VL53L0X lox2 = Adafruit_VL53L0X();
-  //Adafruit_VL53L0X lox3 = Adafruit_VL53L0X();
-  //Adafruit_VL53L0X lox4 = Adafruit_VL53L0X();
+  /*****************************************
+   * DISTANCE SENSORS
+   *****************************************/
+    // set up distance sensors
+    VL53L0X_RangingMeasurementData_t measure1;
+    VL53L0X_RangingMeasurementData_t measure2;
+    VL53L0X_RangingMeasurementData_t measure3;
+    VL53L0X_RangingMeasurementData_t measure4;
 
-  VL53L0X_RangingMeasurementData_t measure1;
-  VL53L0X_RangingMeasurementData_t measure2;
-  VL53L0X_RangingMeasurementData_t measure3;
-  VL53L0X_RangingMeasurementData_t measure4;
+    lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
+    lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
+    lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
+    lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
 
-  lox1.rangingTest(&measure1, false); // pass in 'true' to get debug data printout!
-  lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
-  lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
-  lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
-
-/*************************************************************
-* STATE CONTROL
-**************************************************************/
-// movement speed (at 120 RPM): 1mm every 7.55ms
-//startup noBeads haveBeads grabbingBeads droppingBeads
-switch(motorState) {
-  case startup:
-  // should only run once
-    while(currentpos.y <= 21) {
-      currentPosLog();
-      driveForward();
-      pixy.ccc.getBlocks();
-      if(pixy.ccc.numBlocks) { // if blocks are detected
-        allStop();
-        centerCup();
-        logCup();
-      }
-    }
-    allStop();
-    susan->step(QUARTER_TURN, FORWARD, SINGLE); // turn to the right
-    currentpos.looking = right;
-    while(currentpos.x <= 90) {
-      currentPosLog();
-      driveRight();
-      pixy.ccc.getBlocks();
-      if(pixy.ccc.numBlocks) {
-        allStop();
-        centerCup();
-        logCup();
-      }
-    }
-    allStop();
-    susan->step(QUARTER_TURN*2, BACKWARD, SINGLE); // turn around
-    currentpos.looking = left;
-    while(currentpos.x > 24) {
-      currentPosLog();
-      driveLeft();
-      pixy.ccc.getBlocks();
-      if(pixy.ccc.numBlocks) {
-        allStop();
-        centerCup();
-        logCup();
-      }
-    }
-    allStop();
-    susan->step(QUARTER_TURN, BACKWARD, SINGLE); // face backward
-    currentpos.looking = down;
-    while(currentpos.y > 6) {
-      currentPosLog();
-      driveBackward();
-      pixy.ccc.getBlocks();
-      if(pixy.ccc.numBlocks) {
-        allStop();
-        centerCup();
-        logCup();
-      }
-    }
-    allStop();
-    motorState = noBeads;
-    break;
-  case noBeads:
-    //go to first tree
-    susan->step(QUARTER_TURN*2, FORWARD, SINGLE); // face forward
-    currentpos.looking = up;
-    while(currentpos.y < trees[0].y) {
-      currentPosLog();
-      driveForward();
-    }
-    allStop();
-    break;
-  case grabbingBeads:
-    //grab some spherical goodness
-    break;
-  case haveBeads:
-    // go to cup
-    break;
-  case droppingBeads:
-    // put in cup
-    break;
-  default:
-    break;
-}
-
-  /************************************************
-   * ROBOT STATE CONTROL VIA SERIAL
-   Commands:
-    * w: Move forwards
-    * a: Move left
-    * s: Move backwards
-    * d: Move right
-    * n: Turn lazy susan counter-clockwise 1 position
-    * m: Turn lazy susan clockwise 90 degrees
-    * t: Raise arm
-    * g: Lower arm
-    * y: Raise grabber
-    * h: Lower grabber
-    * u: Extend lead screw
-    * j: Retract lead screw
-    * i: Open claw
-    * k: Close claw
-    * q: Stop All Driving Motors
-    * z: Emergency abort: Stop motors, turn on all debugs, move servos to neutral positions
-    * P: Toggle continuous pixy debug
-    * O: Toggle continuous distance sensor debug
-   ***********************************************/
-   /*
-   if(Serial.available()) {
-    incomingByte = Serial.read();                  // read in character
-    if(incomingByte == char(13)) {
-        switch(storedByte) {
-          case 'w':
-          case 'W':
-            Serial.println("Forward");
-            driveForward();
-            break;
-          case 'a':
-          case 'A':
-            Serial.println("Left");
-            driveLeft();
-            break;
-          case 's':
-          case 'S':
-            Serial.println("Reverse");
-            driveBackward();
-            break;
-          case 'd':
-          case 'D':
-            Serial.println("Right");
-            driveRight();
-            break;
-          case 'q':
-          case 'Q':
-            Serial.println("Drive Stop");
-            allStop();
-            break;
-          case 'n':
-          case 'N':
-            Serial.println("Counter-clockwise susan");
-            susan->step(QUARTER_TURN, FORWARD, SINGLE);
-            break;
-          case 'm':
-          case 'M':
-            Serial.println("Clockwise susan");
-            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-            break;
-          case 't':
-          case 'T':
-            extendo->step(ARM_EXTEND_LENGTH, BACKWARD, SINGLE); // backward is up
-            break;
-          case 'g':
-          case 'G':
-            extendo->step(ARM_EXTEND_LENGTH, FORWARD, SINGLE);
-            break;
-          case 'y':
-          case 'Y':
-            grabberServo.write(ROTATEY_UP);
-            break;
-          case 'h':
-          case 'H':
-            grabberServo.write(ROTATEY_DOWN);
-            break;
-          case 'p':
-          case 'P':
-            pixyDebug = !pixyDebug;
-            break;
-          case 'o':
-          case 'O':
-            distDebug = !distDebug;
-            break;
-          default:
-            Serial.println("Unknown command");
-            break;
+  /*************************************************************
+  * STATE CONTROL
+  **************************************************************/
+  //startup noBeads haveBeads grabbingBeads droppingBeads
+  switch(motorState) {
+    case startup: // survey the track, finding cups
+      while(currentpos.y <= 21) {
+        currentPosLog();
+        driveForward();
+        pixy.ccc.getBlocks();
+        if(pixy.ccc.numBlocks) { // if blocks are detected
+          allStop();
+          centerCup();
+          logCup();
         }
       }
-      else {
-        Serial.print(char(incomingByte));
+      allStop();
+      susan->step(QUARTER_TURN, FORWARD, SINGLE); // turn to the right
+      currentpos.looking = right;
+      while(currentpos.x <= 90) {
+        currentPosLog();
+        driveRight();
+        pixy.ccc.getBlocks();
+        if(pixy.ccc.numBlocks) {
+          allStop();
+          centerCup();
+          logCup();
+        }
       }
-        storedByte = incomingByte;
+      allStop();
+      susan->step(QUARTER_TURN*2, BACKWARD, SINGLE); // turn around
+      currentpos.looking = left;
+      while(currentpos.x > 24) {
+        currentPosLog();
+        driveLeft();
+        pixy.ccc.getBlocks();
+        if(pixy.ccc.numBlocks) {
+          allStop();
+          centerCup();
+          logCup();
+        }
+      }
+      allStop();
+      susan->step(QUARTER_TURN, BACKWARD, SINGLE); // face backward
+      currentpos.looking = down;
+      while(currentpos.y > 6) {
+        currentPosLog();
+        driveBackward();
+        pixy.ccc.getBlocks();
+        if(pixy.ccc.numBlocks) {
+          allStop();
+          centerCup();
+          logCup();
+        }
+      }
+      allStop();
+      motorState = noBeads;
+      break;
+    case noBeads:
+      //go to first tree
+      susan->step(QUARTER_TURN*2, FORWARD, SINGLE); // face forward
+      currentpos.looking = up;
+      while(currentpos.y < trees[0].y) {
+        currentPosLog();
+        driveForward();
+      }
+      allStop();
+      motorState = grabbingBeads;
+      break;
+    case grabbingBeads:
+      clawServo.write(clawClosedDegrees);
+      grabberServo.write(ROTATEY_FULL_UP);
+      leadScrewOut();
+      delay(7000);
+      leadScrewStop();
+      clawServo.write(clawOpenDegrees);
+      leadScrewIn();
+      delay(3500);
+      leadScrewStop();
+      grabberServo.write(ROTATEY_UP);
+      leadScrewIn();
+      delay(3500);
+      leadScrewStop();
+      grabberServo.write(ROTATEY_CUP);
+      motorState = haveBeads;
+      break;
+    case haveBeads:
+      // go to nearest cup
+      break;
+    case droppingBeads:
+      // put in cup
+      break;
+    default:
+      break;
   }
-*/
 
 }

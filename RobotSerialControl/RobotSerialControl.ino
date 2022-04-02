@@ -85,13 +85,13 @@ void allStop() {
 // Drive motors will continue driving until allStop() is called or an individual motor is stopped
 void driveBackward() {
   allStop();
-  //M1->run(FORWARD);
+  M1->run(FORWARD);
   M3->run(BACKWARD);
 }
 
 void driveForward() {
   allStop();
-  //M1->run(BACKWARD);
+  M1->run(BACKWARD);
   M3->run(FORWARD);
 }
 
@@ -287,10 +287,10 @@ void setup() {
 
   susan->setSpeed(30);
   extendo->setSpeed(30);
-  M1->setSpeed(120);
-  M2->setSpeed(120);
-  M3->setSpeed(120);
-  M4->setSpeed(120);
+  M1->setSpeed(RPM);
+  M2->setSpeed(RPM);
+  M3->setSpeed(RPM);
+  M4->setSpeed(RPM);
 
   pixy.init();
   pixy.changeProg("color_connected_components");
@@ -516,8 +516,7 @@ void loop() {
       P: Toggle continuous pixy debug
       O: Toggle continuous distance sensor debug
       c: Drive course while rotating arm
-      b: Turn off distance sensor 2
-      v: Turn on distance sensor 2
+      b: Reset distance sensor I2C addresses
    ***********************************************/
   if (Serial.available()) {
     incomingByte = Serial.read();                  // read in character
@@ -551,12 +550,12 @@ void loop() {
         case 'n':
         case 'N':
           Serial.println("Counter-clockwise susan");
-          susan->step(QUARTER_TURN, FORWARD, SINGLE);
+          susan->step(50, FORWARD, SINGLE);
           break;
         case 'm':
         case 'M':
           Serial.println("Clockwise susan");
-          susan->step(QUARTER_TURN, BACKWARD, SINGLE);
+          susan->step(50, BACKWARD, SINGLE);
           break;
         /*case 't':
           case 'T':
