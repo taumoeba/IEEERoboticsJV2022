@@ -610,86 +610,23 @@ void loop() {
           case 'I':
             for(int i=0;i<30;++i){
               clawServo.write(i*10);
+              Serial.println(i*10);
+              delay(500);
             }
             break;
           case 'k':
           case 'K':
             for(int i=30;i>0;--i){
               clawServo.write(i*10);
+              Serial.println(i*10);
+              delay(500);
             }
-            break;
-          default:
-            Serial.println("unknowncommand");
-            break;
-        }
-  
-  pixy.ccc.getBlocks();
-  if(pixy.ccc.numBlocks) {
-    cups[cupindex++] = precups[0];
-  }  
-
-  driveLeft();
-  delay(MM(TOMM(18)));
-  allStop();
-
-  pixy.ccc.getBlocks();
-  if(pixy.ccc.numBlocks) {
-    cups[cupindex++] = precups[1];
-  }  
-
-  
-  susan->step(QUARTER_TURN, FORWARD, SINGLE);
-  susan->step(QUARTER_TURN, FORWARD, SINGLE);
-  
-  pixy.ccc.getBlocks();
-  if(pixy.ccc.numBlocks) {
-    cups[cupindex++] = precups[1];
-  }
-  
-  driveRight();
-  delay(MM(TOMM(18)));
-  allStop();
-
-  Serial.println("done");
-  grabberServo.write(100);
-  grabberServo.write(45);
-  Serial.println("wave1");
-
-//*
-  if(cupindex == 0){
-    //wave if no cups
-    grabberServo.write(100);
-    grabberServo.write(45);
-    Serial.println("NOCUPS");
-  }
-  else{
-    //GRABBEADS
-    Serial.println("CUPS!");
-    driveLeft();
-    delay(MM(TOMM(14)));
-    allStop();
-    grabberServo.write(100);
-    leadScrewOut();
-    delay(6000);
-    leadScrewStop();
-    clawServo.write(10);
-    grabberServo.write(110);
-    leadScrewIn();
-    delay(6000);
-    grabberServo.write(45);
-    //deal with cup in a bit
-  }//*/
             break;
           default:
             Serial.println("Unknown command");
             break;
         }
-      }
-      else {
-        Serial.print(char(incomingByte));
-      }
-        storedByte = incomingByte;
-  }
-  
+    }
 
+  }
 }
