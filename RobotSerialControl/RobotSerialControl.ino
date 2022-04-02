@@ -500,7 +500,7 @@ void loop() {
     * n: Turn lazy susan counter-clockwise 1 position
     * m: Turn lazy susan clockwise 90 degrees
     * t: Raise arm  DONT USE
-    * g: Lower arm  DONT USE
+    * g: Raise grabber more
     * y: Raise grabber
     * h: Lower grabber
     * u: Extend lead screw
@@ -567,6 +567,10 @@ void loop() {
           case 'H':
             grabberServo.write(ROTATEY_DOWN);
             break;
+          case 'g':
+          case 'G':
+            grabberServo.write(ROTATEY_TREE1);
+            break;
           case 'p':
           case 'P':
             pixyDebug = !pixyDebug;
@@ -587,6 +591,11 @@ void loop() {
             delay(1000);
             leadScrewStop();
             break;
+          case 'z':
+          case 'Z':
+            allStop();
+            pixyDebug = 0;
+            distDebug = 0;
           default:
             Serial.println("Unknown command");
             break;
