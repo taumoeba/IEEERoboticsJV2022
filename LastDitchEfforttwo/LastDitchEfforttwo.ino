@@ -41,7 +41,7 @@
 #define ROTATEY_CUP 40
 
 //number of steps to get a 90degree turn from susan
-#define QUARTER_TURN 460  //testing needed to get precise amount
+#define QUARTER_TURN 560  //testing needed to get precise amount
 
 #define XSHUT1 4
 #define XSHUT2 7
@@ -425,7 +425,7 @@ void setup() {
   }  
   delay(1000);
   driveLeft();
-  delay(MM(TOMM(18)));
+  delay(MM(TOMM(22)));
   allStop();
   delay(1000);
   pixy.ccc.getBlocks();
@@ -445,7 +445,7 @@ void setup() {
   }
   delay(1000);
   driveRight();
-  delay(MM(TOMM(18)));
+  delay(MM(TOMM(22)));
   allStop();
   //.println("done");
   grabberServo.write(100);
@@ -466,7 +466,7 @@ void setup() {
     //GRABBEADS
     //Serial.println("CUPS!");
     driveLeft();
-    delay(MM(TOMM(14)));
+    delay(MM(TOMM(18)));
     allStop();
     grabberServo.write(140);
     leadScrewOut();
@@ -484,7 +484,7 @@ void setup() {
     //deal with cup in a bit
     if(cups[0].y == 7){
       driveRight();
-      delay(MM(TOMM(11)));
+      delay(MM(TOMM(18)));
       allStop();
       delay(1000);
       //Serial.println("DROP BEADS");
@@ -495,7 +495,7 @@ void setup() {
     }
     else if(cups[0].looking == left){
       driveLeft();
-      delay(MM(TOMM(6)));
+      delay(MM(TOMM(4)));
       allStop();
       delay(1000);
       //Serial.println("DROP BEADS");
@@ -507,7 +507,7 @@ void setup() {
     }
     else if(cups[0].looking == up){
       driveLeft();
-      delay(MM(TOMM(6)));
+      delay(MM(TOMM(4)));
       allStop();
       delay(1000);
       susan->step(QUARTER_TURN, FORWARD, SINGLE);

@@ -22,10 +22,10 @@
 #include <Servo.h>
 #include <Pixy2.h>
 #include "Adafruit_VL53L0X.h"
-#include "music.h"
+//#include "music.h"
 
 // peizo buzzer pin
-#define MUSIC_PIN 47
+//#define MUSIC_PIN 47
 
 #define MOTOR_STEPS 200
 #define RPM 120
