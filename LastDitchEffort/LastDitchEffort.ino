@@ -356,6 +356,7 @@ void loop() {
 /*************************************************************
 * STATE CONTROL
 **************************************************************/
+// movement speed (at 120 RPM): 1mm every 7.55ms
 //startup noBeads haveBeads grabbingBeads droppingBeads
 switch(motorState) {
   case startup:
@@ -413,7 +414,7 @@ switch(motorState) {
     motorState = noBeads;
     break;
   case noBeads:
-    //go to tree
+    //go to first tree
     susan->step(QUARTER_TURN*2, FORWARD, SINGLE); // face forward
     currentpos.looking = up;
     while(currentpos.y < trees[0].y) {
