@@ -41,7 +41,7 @@
 #define ROTATEY_TREE2 180
 
 //number of steps to get a 90degree turn from susan
-#define QUARTER_TURN 450  //testing needed to get precise amount
+#define QUARTER_TURN 460  //testing needed to get precise amount
 //this is 45degree turn
 #define XSHUT1 4
 #define XSHUT2 7
@@ -605,9 +605,23 @@ void loop() {
             allStop();
             pixyDebug = 0;
             distDebug = 0;
-          case 'c':
-          case 'C':
-            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
+            break;
+          case 'i':
+          case 'I':
+            for(int i=0;i<30;++i){
+              clawServo.write(i*10);
+            }
+            break;
+          case 'k':
+          case 'K':
+            for(int i=30;i>0;--i){
+              clawServo.write(i*10);
+            }
+            break;
+          default:
+            Serial.println("unknowncommand");
+            break;
+        }
   
   pixy.ccc.getBlocks();
   if(pixy.ccc.numBlocks) {

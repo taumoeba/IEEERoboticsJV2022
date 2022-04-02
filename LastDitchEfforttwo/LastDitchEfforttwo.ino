@@ -409,11 +409,12 @@ void setup() {
   
   cupindex = 0;
 
-  while(!Serial.available()){
+  clawServo.write(100);
+  //while(!Serial.available()){
     
-  }
-  char incomingByte = Serial.read();
-  Serial.println(incomingByte);
+  //}
+  //char incomingByte = Serial.read();
+  //Serial.println(incomingByte);
   
   susan->step(QUARTER_TURN, BACKWARD, SINGLE);
   
@@ -472,9 +473,8 @@ void setup() {
     delay(6000);
     leadScrewStop();
     delay(1000);
-    clawServo.write(300);
-    delay(1000);
     clawServo.write(0);
+    delay(1000);
     grabberServo.write(150);
     delay(6000);
     leadScrewIn();
@@ -485,7 +485,34 @@ void setup() {
     if(cups[0].y == 7){
       driveRight();
       delay(MM(TOMM(11)));
+      allStop();
       Serial.println("DROP BEADS");
+      grabberServo.write(45);
+      delay(500);
+      clawServo.write(200);
+      Serial.println("done");
+    }
+    else if(cups[0].looking == left){
+      driveLeft();
+      delay(MM(TOMM(6)));
+      allStop();
+      Serial.println("DROP BEADS");
+      grabberServo.write(45);
+      delay(500);
+      clawServo.write(200);
+      Serial.println("done");
+    }
+    else if(cups[0].looking == up){
+      driveLeft();
+      delay(MM(TOMM(6)));
+      allStop();
+      susan->step(QUARTER_TURN, FORWARD, SINGLE);
+      susan->step(QUARTER_TURN, FORWARD, SINGLE);
+      Serial.println("DROP BEADS");
+      grabberServo.write(45);
+      delay(500);
+      clawServo.write(200);
+      Serial.println("done");
     }
   }//*/
 
