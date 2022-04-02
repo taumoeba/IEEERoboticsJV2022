@@ -22,6 +22,10 @@
 #include <Servo.h>
 #include <Pixy2.h>
 #include "Adafruit_VL53L0X.h"
+#include "music.h"
+
+// peizo buzzer pin
+#define MUSIC_PIN 47
 
 #define MOTOR_STEPS 200
 #define RPM 120
@@ -41,7 +45,7 @@
 #define ROTATEY_TREE2 180
 
 //number of steps to get a 90degree turn from susan
-#define QUARTER_TURN 450  //testing needed to get precise amount
+#define QUARTER_TURN 560  //testing needed to get precise amount
 
 #define XSHUT1 4
 #define XSHUT2 7
@@ -303,6 +307,9 @@ void setup() {
   grabberServo.attach(GRABBER_SERVO_PIN);
   clawServo.attach(CLAW_SERVO_PIN);
 
+   // setup piezo buzzer
+  pinMode(MUSIC_PIN, OUTPUT);
+
   // setup MC33926 H-bridge outputs and disable
   pinMode(OUT1, OUTPUT);
   pinMode(OUT2, OUTPUT);
@@ -503,7 +510,7 @@ void loop() {
       d: Move right
       n: Turn lazy susan counter-clockwise 1 position
       m: Turn lazy susan clockwise 90 degrees
-      t: Move foward meter
+      t: Susan Sweep
       g: Raise grabber more
       y: Raise grabber
       h: Lower grabber
@@ -516,7 +523,7 @@ void loop() {
       z: Emergency abort: Stop motors, turn on all debugs, move servos to neutral positions
       P: Toggle continuous pixy debug
       O: Toggle continuous distance sensor debug
-      c: Drive course while rotating arm
+      c: buzzer?
       b: Reset distance sensor I2C addresses
    ***********************************************/
   if (Serial.available()) {
@@ -575,12 +582,12 @@ void loop() {
         case 'n':
         case 'N':
           Serial.println("Counter-clockwise susan");
-          susan->step(50, FORWARD, SINGLE);
+          susan->step(QUARTER_TURN, FORWARD, SINGLE);
           break;
         case 'm':
         case 'M':
           Serial.println("Clockwise susan");
-          susan->step(50, BACKWARD, SINGLE);
+          susan->step(QUARTER_TURN, BACKWARD, SINGLE);
           break;
         /*case 't':
           case 'T':
@@ -592,9 +599,11 @@ void loop() {
           break;*/
         case 't':
         case 'T':
-          driveForward();
-          delay(MM(TOMM(39.3)));
-          allStop();
+          for(int i=0; i<1000; i += 10){
+            susan->step(10, FORWARD, SINGLE);
+            Serial.println(i);
+            delay(100);
+          }
           break;
         case 'y':
         case 'Y':
@@ -635,36 +644,9 @@ void loop() {
           distDebug = 0;
         case 'c':
         case 'C':
-          Serial.println("FORWARD");
-          driveForward();
-          delay(MM(TOMM(18)));
-          allStop();
-          Serial.println("CLOCKWISE");
-          susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-          delay(2000);
-          Serial.println("RIGHT");
-          driveRight();
-          delay(MM(TOMM(60)));
-          allStop();
-          Serial.println("COUNTER-CLOCKWISE");
-          susan->step(QUARTER_TURN, FORWARD, SINGLE);
-          delay(2000);
-          susan->step(QUARTER_TURN, FORWARD, SINGLE);
-          delay(2000);
-          Serial.println("LEFT");
-          driveLeft();
-          delay(MM(TOMM(60)));
-          allStop();
-          Serial.println("COUNTER-CLOCKWISE");
-          susan->step(QUARTER_TURN, FORWARD, SINGLE);
-          delay(2000);
-          driveBackward();
-          delay(MM(TOMM(18)));
-          allStop();
-          susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-          delay(2000);
-          susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-          delay(2000);
+          Serial.println("MUSIC!");
+          play_song(); // play music using music.h
+          Serial.println("MUSIC DONE!");
           break;
         case 'b':
           digitalWrite(XSHUT1, LOW);
