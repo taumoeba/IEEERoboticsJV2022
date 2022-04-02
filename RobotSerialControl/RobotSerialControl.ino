@@ -22,6 +22,10 @@
 #include <Servo.h>
 #include <Pixy2.h>
 #include "Adafruit_VL53L0X.h"
+#include "music.h"
+
+// peizo buzzer pin
+#define MUSIC_PIN 47
 
 #define MOTOR_STEPS 200
 #define RPM 120
@@ -302,6 +306,9 @@ void setup() {
   // Initialize servo
   grabberServo.attach(GRABBER_SERVO_PIN);
   clawServo.attach(CLAW_SERVO_PIN);
+
+  // setup piezo buzzer
+//  pinMode(MUSIC_PIN, OUTPUT);
 
   // setup MC33926 H-bridge outputs and disable
   pinMode(OUT1, OUTPUT);
@@ -621,6 +628,9 @@ void loop() {
               Serial.println(i*10);
               delay(500);
             }
+            break;
+           case 'b':
+            play_song(MUSIC_PIN); // play music using music.h
             break;
           default:
             Serial.println("Unknown command");
