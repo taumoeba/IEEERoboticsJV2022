@@ -159,6 +159,7 @@ position precups[7];
 //coord_system.cpp
 #define tocords(steps) (double)(steps/2) //experimentation will make this more precise
 #define toinches(millimeters) (double)(millimeters*0.0393701) //current assumption is that distance sensors read mm and i'm using inches
+#define MM(mm) (mm*7.55) //turns millimeters into milliseconds
 
 const int cupdistance = 12;
 const int fromcenter = 5.75;
@@ -499,7 +500,7 @@ void loop() {
     * d: Move right
     * n: Turn lazy susan counter-clockwise 1 position
     * m: Turn lazy susan clockwise 90 degrees
-    * t: Raise arm  DONT USE
+    * t: Move foward meter
     * g: Raise grabber more
     * y: Raise grabber
     * h: Lower grabber
@@ -559,6 +560,12 @@ void loop() {
           case 'G':
             extendo->step(ARM_EXTEND_LENGTH, FORWARD, SINGLE); 
             break;*/
+          case 't':
+          case 'T':
+            driveForward();
+            delay(MM(1000));
+            allStop();
+            break;
           case 'y':
           case 'Y':
             grabberServo.write(ROTATEY_RIGHT);
