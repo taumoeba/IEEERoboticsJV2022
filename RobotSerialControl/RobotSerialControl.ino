@@ -273,6 +273,7 @@ unsigned long lastMillis;
 bool motorOn = false;
 byte incomingByte;
 byte storedByte;
+int rotateyPosition = 45;
 
 void setup() {
   Serial.begin(115200);
@@ -335,6 +336,7 @@ void setup() {
   //M1->run(FORWARD);
   //motorOn = true;
   grabberServo.write(30);
+  pixy.setLamp(0,0);
 }
 
 /*

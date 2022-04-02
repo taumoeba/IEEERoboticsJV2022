@@ -160,7 +160,7 @@ struct position{
 };
 
 position cups[4];   //in case there are more than two cups
-char cupindex;
+//char cupindex;
 position trees[2];
 char treeindex;
 position currentpos;
@@ -215,45 +215,6 @@ void coordSetup(){
     //these need to be backed up with distance sensors.
 }
 
-//when a cup is found, log the position
-/*
-void logcup(){
-    //this would be after centering on the cup
-    position newcup;
-    newcup = currentpos;
-    newcup.looking = pixyDir;
-    switch(newcup.looking){
-        case left:
-            if(abs(newcup.y - precups[0].y) < abs(newcup.y - precups[1].y)){
-                cups[cupindex++] = precups[0];
-            }
-            else{
-                cups[cupindex++] = precups[1];
-            }
-            break;
-        case up:
-            if(abs(newcup.x - precups[2].x) < abs(newcup.x - precups[3].x && abs(newcup.x - precups[2].x) < abs(newcup.x - precups[4].x))){
-                cups[cupindex++] = precups[2];
-            }
-            else if(abs(newcup.x - precups[3].x) < abs(newcup.x - precups[2].x && abs(newcup.x - precups[3].x) < abs(newcup.x - precups[4].x))){
-                cups[cupindex++] = precups[3];
-            }
-            else{
-                cups[cupindex++] = precups[4];
-            }
-            break;
-        case down:
-            if(abs(newcup.x - precups[5].x) < abs(newcup.x - precups[6].x)){
-                cups[cupindex++] = precups[5];
-            }
-            else{
-                cups[cupindex++] = precups[6];
-            }
-            break;
-    }
-}
-*/
-
 void currentPosLog(){
     //all of these can change to satisfy overall design
 
@@ -276,11 +237,11 @@ void currentPosLog(){
 
 void logCup() {
   currentPosLog();
-  int cupIndex = 0;
-  while(foundcups[cupIndex] == 1) cupIndex++;
-  foundcups[cupIndex] = 1;
-  cups[cupIndex].x = currentpos.x;
-  cups[cupIndex].y = currentpos.y;
+  int cupLogIndex = 0;
+  while(foundcups[cupLogIndex] == 1) cupLogIndex++;
+  foundcups[cupLogIndex] = 1;
+  cups[cupLogIndex].x = currentpos.x;
+  cups[cupLogIndex].y = currentpos.y;
 }
 
 Pixy2 pixy;
@@ -368,13 +329,9 @@ void setup() {
 
   //M1->run(FORWARD);
   //motorOn = true;
-  grabberServo.write(20); // get grabber out of the way for turning
+  grabberServo.write(45); // get grabber out of the way for turning
   extendo->step(100, FORWARD, SINGLE);
 }
-
-/*
-  The robot has two modes, cup hunt/traverse board and grabbing beads/placing in cups
-*/
 
 void loop() {
 /*****************************************
@@ -395,81 +352,6 @@ void loop() {
   lox2.rangingTest(&measure2, false); // pass in 'true' to get debug data printout!
   lox3.rangingTest(&measure3, false); // pass in 'true' to get debug data printout!
   lox4.rangingTest(&measure4, false); // pass in 'true' to get debug data printout!
-/*
-  if(distDebug) {
-    if (measure3.RangeStatus != 4) {  // phase failures have incorrect data
-      Serial.print("Distance 1 (mm): "); Serial.println(measure3.RangeMilliMeter);
-    } else {
-      Serial.println(" sensor 3 out of range ");
-    }
-
-    if (measure4.RangeStatus != 4) {  // phase failures have incorrect data
-      Serial.print("Distance 1 (mm): "); Serial.println(measure4.RangeMilliMeter);
-    } else {
-      Serial.println(" sensor 4 out of range ");
-    }
-  }
-*/
-/*
-  // If the range on Sensor1 is less than 450mm, slow down. If it's less than 250mm, stop
-  if(measure4.RangeMilliMeter >= 450) { //change to RangeInches
-      allClear = true;
-      setMotorSpeed(120);
-      //Serial.println(F("All clear"));
-    }
-    else if(measure4.RangeMilliMeter >= 250) {
-      allClear = true;
-      setMotorSpeed(60);
-      //Serial.println(F("Caution"));
-    }
-    else if(measure4.RangeMilliMeter < 250) {
-      allClear = false;
-      //Serial.println(F("STOP!"));
-    }
-    //Serial.println(measure4.RangeMilliMeter);
-
-
-    if(distDebug) {
-      Serial.print("Sensor 1: ");
-      Serial.println(measure1.RangeMilliMeter);
-      Serial.print("Sensor 2: ");
-      Serial.println(measure2.RangeMilliMeter);
-      Serial.print("Sensor 3: ");
-      Serial.println(measure3.RangeMilliMeter);
-      Serial.print("Sensor 4: ");
-      Serial.println(measure4.RangeMilliMeter);
-    }
-*/
-  /************************************************
-   * PIXY CAMERA
-   ***********************************************/
-
-   //pixy.ccc.getBlocks();
-/*   if(pixy.ccc.numBlocks) {
-     //Serial.println("**********CUP DETECTED***********");
-     allClear = false;
-   }
-   */
-/*
-   if(pixyDebug) {
-     // If there are detected blocks, stop driving
-     if (pixy.ccc.numBlocks)
-     {
-      //Serial.println("********CUP DETECTED*****");
-      //allClear = false; // stop driving
-
-       Serial.print("Detected ");
-       Serial.println(pixy.ccc.numBlocks);
-       for (int i=0; i<pixy.ccc.numBlocks; i++)
-       {
-         Serial.print("  block ");
-         Serial.print(i);
-         Serial.print(": ");
-         pixy.ccc.blocks[i].print();
-       }
-     }
-   }
-*/
 
 /*************************************************************
 * STATE CONTROL
@@ -515,7 +397,7 @@ switch(motorState) {
       }
     }
     allStop();
-    susan->step(QUARTER_TURN, BACKWARD, SINGLE);
+    susan->step(QUARTER_TURN, BACKWARD, SINGLE); // face backward
     currentpos.looking = down;
     while(currentpos.y > 6) {
       currentPosLog();
@@ -531,7 +413,14 @@ switch(motorState) {
     motorState = noBeads;
     break;
   case noBeads:
-    //look for beads
+    //go to tree
+    susan->step(QUARTER_TURN*2, FORWARD, SINGLE); // face forward
+    currentpos.looking = up;
+    while(currentpos.y < trees[0].y) {
+      currentPosLog();
+      driveForward();
+    }
+    allStop();
     break;
   case grabbingBeads:
     //grab some spherical goodness
@@ -545,43 +434,6 @@ switch(motorState) {
   default:
     break;
 }
-
-  /******************************************
-   * MOTORS
-   *****************************************/
-   // only drive if sensors reporting all clear
-   /*
-   if(allClear != allClearOld) {
-    if(allClear) {
-      driveForward();
-      //leadScrewOut();
-      //M1->run(FORWARD);
-    } else {
-      allStop();
-      //leadScrewStop();
-    }
-    allClearOld = allClear;
-   }
-   */
-/*
-  if(millis() - lastMillis >= motorDelay) {
-    if(!motorOn) {
-      M1->run(FORWARD);
-      motorOn = true;
-    }
-    else {
-      //M1->run(RELEASE);
-      //motorOn = false;
-      soft_restart();
-    }
-
-    //digitalWrite(XSHUT4, LOW);
-    //delay(10);
-    //digitalWrite(XSHUT4, HIGH);
-    lastMillis = millis();
-
-  }
-*/
 
   /************************************************
    * ROBOT STATE CONTROL VIA SERIAL
