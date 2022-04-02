@@ -157,9 +157,10 @@ position currentpos;
 position precups[7];
 
 //coord_system.cpp
-#define tocords(steps) (double)(steps/2) //experimentation will make this more precise
-#define toinches(millimeters) (double)(millimeters*0.0393701) //current assumption is that distance sensors read mm and i'm using inches
-#define MM(mm) (mm*7.55) //turns millimeters into milliseconds
+#define TOCORDS(steps) (double)(steps/2) //experimentation will make this more precise
+#define TOINCHES(millimeters) (double)(millimeters*0.0393701) //current assumption is that distance sensors read mm and i'm using inches
+#define TOMM(inches) (double)(inches/0.0393701) //convert from inches to mm
+#define MM(mm) (int)(mm*7.55) //turns millimeters into milliseconds
 
 const int cupdistance = 12;
 const int fromcenter = 5.75;
@@ -512,6 +513,7 @@ void loop() {
     * z: Emergency abort: Stop motors, turn on all debugs, move servos to neutral positions
     * P: Toggle continuous pixy debug
     * O: Toggle continuous distance sensor debug
+    * c: Drive course while rotating arm
    ***********************************************/
    if(Serial.available()) {
     incomingByte = Serial.read();                  // read in character
@@ -563,7 +565,7 @@ void loop() {
           case 't':
           case 'T':
             driveForward();
-            delay(MM(1000));
+            delay(MM(TOMM(39.3)));
             allStop();
             break;
           case 'y':
@@ -603,6 +605,33 @@ void loop() {
             allStop();
             pixyDebug = 0;
             distDebug = 0;
+          case 'c':
+          case 'C':
+            driveForward();
+            delay(MM(TOMM(18)));
+            allStop();
+            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
+            delay(2000);
+            driveRight();
+            delay(MM(TOMM(60)));
+            allStop();
+            susan->step(QUARTER_TURN, FORWARD, SINGLE);
+            delay(2000);
+            susan->step(QUARTER_TURN, FORWARD, SINGLE);
+            delay(2000);
+            driveLeft();
+            delay(MM(TOMM(60)));
+            allStop();
+            susan->step(QUARTER_TURN, FORWARD, SINGLE);
+            delay(2000);
+            driveBackward();
+            delay(MM(TOMM(18)));
+            allStop();
+            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
+            delay(2000);
+            susan->step(QUARTER_TURN, BACKWARD, SINGLE);
+            delay(2000);
+            break;
           default:
             Serial.println("Unknown command");
             break;
