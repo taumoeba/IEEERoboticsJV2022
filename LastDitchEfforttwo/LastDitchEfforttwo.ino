@@ -404,6 +404,8 @@ void setup() {
   //motorOn = true;
   grabberServo.write(45); // get grabber out of the way for turning
   //extendo->step(100, FORWARD, SINGLE);
+
+  coordSetup(); //set up coords
   
   cupindex = 0;
   
@@ -426,15 +428,17 @@ void setup() {
   
   susan->step(QUARTER_TURN, BACKWARD, SINGLE);
   susan->step(QUARTER_TURN, BACKWARD, SINGLE);
-
+  
+  pixy.ccc.getBlocks();
+  if(pixy.ccc.numBlocks) {
+    cups[cupindex++] = precups[1];
+  }
+  
   driveRight();
   delay(MM(TOMM(18)));
   allStop();
 
-  pixy.ccc.getBlocks();
-  if(pixy.ccc.numBlocks) {
-    cups[cupindex++] = precups[1];
-  }  
+  
   /*
   driveForward();
   delay(3452*2);
